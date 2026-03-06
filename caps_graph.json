@@ -1,0 +1,1136 @@
+[
+  {
+    "skill_id": "M4-N-001",
+    "skill_name": "Recognize place value of digits in whole numbers to at least 4-digit numbers",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 1.0,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is the value of the {target_digit} in {4_digit_number}?"
+  },
+  {
+    "skill_id": "M4-N-002",
+    "skill_name": "Read numbers up to 10 000 in numeric and word form",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 1.2,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which number matches the words: {number_in_words}?"
+  },
+  {
+    "skill_id": "M4-N-003",
+    "skill_name": "Expand numbers into place values",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Write {4_digit_number} in expanded form (e.g., 4000 + 300 + 20 + 1)."
+  },
+  {
+    "skill_id": "M4-N-004",
+    "skill_name": "Compare numbers to 10 000 using >, <, =",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 1.6,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "Fill in the blank: {num1} ___ {num2} (>, <, =)"
+  },
+  {
+    "skill_id": "M4-N-005",
+    "skill_name": "Order a set of numbers up to 10 000 from smallest to largest",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-N-004"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Order these numbers from smallest to largest: {array_of_4_numbers}"
+  },
+  {
+    "skill_id": "M4-N-006",
+    "skill_name": "Round whole numbers to the nearest 10",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "Round {number} to the nearest 10."
+  },
+  {
+    "skill_id": "M4-N-007",
+    "skill_name": "Round whole numbers to the nearest 100",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 2.1,
+    "prerequisites": ["M4-N-006"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "Round {number} to the nearest 100."
+  },
+  {
+    "skill_id": "M4-N-008",
+    "skill_name": "Round whole numbers to the nearest 1000",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-N-007"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "Round {number} to the nearest 1000."
+  },
+  {
+    "skill_id": "M4-N-009",
+    "skill_name": "Add multiples of 10 and 100 mentally",
+    "caps_reference": "Grade 4, Term 1, Addition and Subtraction",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "5 correct in a row",
+    "question_template": "What is {a} + {multiple_of_100}?"
+  },
+  {
+    "skill_id": "M4-N-010",
+    "skill_name": "Add 2-digit numbers without regrouping",
+    "caps_reference": "Grade 4, Term 1, Addition and Subtraction",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-N-009"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "{a} + {b} = ? (no column carrying)"
+  },
+  {
+    "skill_id": "M4-N-011",
+    "skill_name": "Add 2-digit numbers with regrouping",
+    "caps_reference": "Grade 4, Term 1, Addition and Subtraction",
+    "difficulty": 2.3,
+    "prerequisites": ["M4-N-010"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "{a} + {b} = ? (with column carrying)"
+  },
+  {
+    "skill_id": "M4-N-012",
+    "skill_name": "Add using a number line",
+    "caps_reference": "Grade 4, Term 1, Addition and Subtraction",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-N-010"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which number line correctly shows {a} + {b}?"
+  },
+  {
+    "skill_id": "M4-N-013",
+    "skill_name": "Subtract multiples of 10 and 100 mentally",
+    "caps_reference": "Grade 4, Term 1, Addition and Subtraction",
+    "difficulty": 1.6,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "5 correct in a row",
+    "question_template": "What is {a} - {multiple_of_100}?"
+  },
+  {
+    "skill_id": "M4-N-014",
+    "skill_name": "Subtract 2-digit numbers without borrowing",
+    "caps_reference": "Grade 4, Term 1, Addition and Subtraction",
+    "difficulty": 1.9,
+    "prerequisites": ["M4-N-013"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "{a} - {b} = ? (no borrowing)"
+  },
+  {
+    "skill_id": "M4-N-015",
+    "skill_name": "Subtract 2-digit numbers with borrowing",
+    "caps_reference": "Grade 4, Term 1, Addition and Subtraction",
+    "difficulty": 2.5,
+    "prerequisites": ["M4-N-014"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "{a} - {b} = ? (with borrowing)"
+  },
+  {
+    "skill_id": "M4-N-016",
+    "skill_name": "Verify addition using inverse subtraction",
+    "caps_reference": "Grade 4, Term 2, Addition and Subtraction",
+    "difficulty": 2.8,
+    "prerequisites": ["M4-N-011", "M4-N-015"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If {a} + {b} = {c}, what is {c} - {b}?"
+  },
+  {
+    "skill_id": "M4-N-017",
+    "skill_name": "Recognize the commutative property in addition",
+    "caps_reference": "Grade 4, Term 4, Properties of Whole Numbers",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-N-011"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "True or False: {a} + {b} is the same as {b} + {a}?"
+  },
+  {
+    "skill_id": "M4-N-018",
+    "skill_name": "Understand multiplication as repeated addition",
+    "caps_reference": "Grade 4, Term 1, Multiplication",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-N-011"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Write {a} x {b} as a repeated addition sentence."
+  },
+  {
+    "skill_id": "M4-N-019",
+    "skill_name": "Recall multiplication facts for 2x, 5x, and 10x tables",
+    "caps_reference": "Grade 4, Term 1, Multiplication",
+    "difficulty": 1.6,
+    "prerequisites": ["M4-N-018"],
+    "mastery_criteria": "5 correct in a row (timed)",
+    "question_template": "{a} x {b} = ?"
+  },
+  {
+    "skill_id": "M4-N-020",
+    "skill_name": "Recall multiplication facts for 3x and 4x tables",
+    "caps_reference": "Grade 4, Term 1, Multiplication",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-N-019"],
+    "mastery_criteria": "5 correct in a row (timed)",
+    "question_template": "{a} x {b} = ?"
+  },
+  {
+    "skill_id": "M4-N-021",
+    "skill_name": "Recall multiplication facts for 6x, 7x, 8x, and 9x tables",
+    "caps_reference": "Grade 4, Term 1, Multiplication",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-N-020"],
+    "mastery_criteria": "5 correct in a row (timed)",
+    "question_template": "{a} x {b} = ?"
+  },
+  {
+    "skill_id": "M4-N-022",
+    "skill_name": "Multiply 1-digit numbers by multiples of 10",
+    "caps_reference": "Grade 4, Term 1, Multiplication",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-N-021"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "{a} x {multiple_of_10} = ?"
+  },
+  {
+    "skill_id": "M4-N-023",
+    "skill_name": "Multiply 2-digit by 1-digit numbers without regrouping",
+    "caps_reference": "Grade 4, Term 1, Multiplication",
+    "difficulty": 2.3,
+    "prerequisites": ["M4-N-022"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "{a} x {b} = ? (no regrouping)"
+  },
+  {
+    "skill_id": "M4-N-024",
+    "skill_name": "Multiply 2-digit by 1-digit numbers with regrouping",
+    "caps_reference": "Grade 4, Term 1, Multiplication",
+    "difficulty": 2.8,
+    "prerequisites": ["M4-N-023", "M4-N-011"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "{a} x {b} = ? (with regrouping)"
+  },
+  {
+    "skill_id": "M4-N-025",
+    "skill_name": "Multiply 2-digit by 2-digit numbers using the breaking down method",
+    "caps_reference": "Grade 4, Term 2, Multiplication",
+    "difficulty": 3.2,
+    "prerequisites": ["M4-N-024"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Calculate {a} x {b} using the breaking down method."
+  },
+  {
+    "skill_id": "M4-N-026",
+    "skill_name": "Understand division as sharing into equal parts",
+    "caps_reference": "Grade 4, Term 1, Division",
+    "difficulty": 1.4,
+    "prerequisites": ["M4-N-018"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If {a} items are shared equally among {b} groups, how many in each group?"
+  },
+  {
+    "skill_id": "M4-N-027",
+    "skill_name": "Relate division to multiplication (Inverse Operations)",
+    "caps_reference": "Grade 4, Term 1, Division",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-N-021", "M4-N-026"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If {a} x {b} = {c}, what is {c} ÷ {a}?"
+  },
+  {
+    "skill_id": "M4-N-028",
+    "skill_name": "Recall division facts up to 100",
+    "caps_reference": "Grade 4, Term 1, Division",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-N-027"],
+    "mastery_criteria": "5 correct in a row (timed)",
+    "question_template": "{a} ÷ {b} = ?"
+  },
+  {
+    "skill_id": "M4-N-029",
+    "skill_name": "Divide multiples of 10 by 1-digit numbers mentally",
+    "caps_reference": "Grade 4, Term 1, Division",
+    "difficulty": 2.1,
+    "prerequisites": ["M4-N-022", "M4-N-028"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "{multiple_of_10} ÷ {b} = ?"
+  },
+  {
+    "skill_id": "M4-N-030",
+    "skill_name": "Understand remainders visually",
+    "caps_reference": "Grade 4, Term 2, Division",
+    "difficulty": 2.4,
+    "prerequisites": ["M4-N-028"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Group {a} items into sets of {b}. How many are left over? [Visual]"
+  },
+  {
+    "skill_id": "M4-N-031",
+    "skill_name": "Divide 2-digit by 1-digit numbers with remainders",
+    "caps_reference": "Grade 4, Term 2, Division",
+    "difficulty": 3.0,
+    "prerequisites": ["M4-N-029", "M4-N-030"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is {a} ÷ {b}? State quotient and remainder."
+  },
+  {
+    "skill_id": "M4-N-032",
+    "skill_name": "Divide 3-digit by 1-digit numbers using the breaking down method",
+    "caps_reference": "Grade 4, Term 2, Division",
+    "difficulty": 3.6,
+    "prerequisites": ["M4-N-031"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Calculate {3_digit} ÷ {1_digit}."
+  },
+  {
+    "skill_id": "M4-N-033",
+    "skill_name": "Convert between Rands and cents",
+    "caps_reference": "Grade 4, Term 4, Money",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "Convert R{rands}.{cents} to cents."
+  },
+  {
+    "skill_id": "M4-N-034",
+    "skill_name": "Solve money word problems with addition and subtraction",
+    "caps_reference": "Grade 4, Term 4, Money",
+    "difficulty": 3.5,
+    "prerequisites": ["M4-N-011", "M4-N-015", "M4-N-033"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "You buy an item for R{price}. You pay with R{note}. Calculate the change."
+  },
+  {
+    "skill_id": "M4-F-001",
+    "skill_name": "Distinguish between equal and unequal parts of a whole shape",
+    "caps_reference": "Grade 4, Term 1, Common Fractions",
+    "difficulty": 1.0,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which of these shapes is divided into equal parts? [Visual Array]"
+  },
+  {
+    "skill_id": "M4-F-002",
+    "skill_name": "Identify unit fractions from visual models",
+    "caps_reference": "Grade 4, Term 1, Common Fractions",
+    "difficulty": 1.2,
+    "prerequisites": ["M4-F-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What fraction of the shape is shaded? [Visual of 1 part shaded]"
+  },
+  {
+    "skill_id": "M4-F-003",
+    "skill_name": "Define and identify the denominator and numerator",
+    "caps_reference": "Grade 4, Term 1, Common Fractions",
+    "difficulty": 1.4,
+    "prerequisites": ["M4-F-002"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "In the fraction {n}/{d}, which number is the denominator?"
+  },
+  {
+    "skill_id": "M4-F-004",
+    "skill_name": "Write a non-unit fraction numerically given a visual model",
+    "caps_reference": "Grade 4, Term 1, Common Fractions",
+    "difficulty": 1.6,
+    "prerequisites": ["M4-F-003"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Write the fraction for the shaded area. [Visual of multiple parts shaded]"
+  },
+  {
+    "skill_id": "M4-F-005",
+    "skill_name": "Understand fractions as a part of a collection (Visual)",
+    "caps_reference": "Grade 4, Term 2, Common Fractions",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-F-004", "M4-N-026"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Circle {n}/{d} of the apples. [Visual]"
+  },
+  {
+    "skill_id": "M4-F-006",
+    "skill_name": "Calculate a unit fraction of a collection numerically",
+    "caps_reference": "Grade 4, Term 2, Common Fractions",
+    "difficulty": 2.4,
+    "prerequisites": ["M4-F-005", "M4-N-028"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is 1/{d} of {total}?"
+  },
+  {
+    "skill_id": "M4-F-007",
+    "skill_name": "Calculate a non-unit fraction of a collection numerically",
+    "caps_reference": "Grade 4, Term 2, Common Fractions",
+    "difficulty": 2.8,
+    "prerequisites": ["M4-F-006", "M4-N-021"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is {n}/{d} of {total}?"
+  },
+  {
+    "skill_id": "M4-F-008",
+    "skill_name": "Compare fractions with the same denominator",
+    "caps_reference": "Grade 4, Term 3, Common Fractions",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-F-004"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "Fill in the blank: {n1}/{d} ___ {n2}/{d} (>, <, =)"
+  },
+  {
+    "skill_id": "M4-F-009",
+    "skill_name": "Compare unit fractions numerically",
+    "caps_reference": "Grade 4, Term 3, Common Fractions",
+    "difficulty": 2.5,
+    "prerequisites": ["M4-F-008"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which is larger: 1/{d1} or 1/{d2}?"
+  },
+  {
+    "skill_id": "M4-F-010",
+    "skill_name": "Identify equivalent fractions using a fraction wall",
+    "caps_reference": "Grade 4, Term 3, Common Fractions",
+    "difficulty": 2.5,
+    "prerequisites": ["M4-F-004"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Using the fraction wall, how many {d2}ths equal {n1}/{d1}? [Visual]"
+  },
+  {
+    "skill_id": "M4-F-011",
+    "skill_name": "Add fractions with the same denominator numerically",
+    "caps_reference": "Grade 4, Term 4, Common Fractions",
+    "difficulty": 2.6,
+    "prerequisites": ["M4-F-004"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "{n1}/{d} + {n2}/{d} = ?"
+  },
+  {
+    "skill_id": "M4-F-012",
+    "skill_name": "Subtract fractions with the same denominator numerically",
+    "caps_reference": "Grade 4, Term 4, Common Fractions",
+    "difficulty": 2.7,
+    "prerequisites": ["M4-F-011"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "{n1}/{d} - {n2}/{d} = ?"
+  },
+  {
+    "skill_id": "M4-M-001",
+    "skill_name": "Practical measuring by estimating, reading, and recording length",
+    "caps_reference": "Grade 4, Term 1, Length",
+    "difficulty": 1.5,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Estimate the length of a standard pencil in cm."
+  },
+  {
+    "skill_id": "M4-M-002",
+    "skill_name": "Convert between mm, cm, m, and km (Whole numbers)",
+    "caps_reference": "Grade 4, Term 1, Length",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-M-001", "M4-N-022"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "Convert {a} {unit1} to {unit2}."
+  },
+  {
+    "skill_id": "M4-M-003",
+    "skill_name": "Solve word problems involving length",
+    "caps_reference": "Grade 4, Term 1, Length",
+    "difficulty": 2.8,
+    "prerequisites": ["M4-M-002", "M4-N-011", "M4-N-015"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "A rope is {length1} m. {length2} m is cut off. How much is left?"
+  },
+  {
+    "skill_id": "M4-M-004",
+    "skill_name": "Read analogue and digital scales to measure mass in g and kg",
+    "caps_reference": "Grade 4, Term 3, Mass",
+    "difficulty": 1.7,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is the mass shown on the scale? [Visual]"
+  },
+  {
+    "skill_id": "M4-M-005",
+    "skill_name": "Convert between g and kg",
+    "caps_reference": "Grade 4, Term 3, Mass",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-M-004", "M4-N-022"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Convert {a} kg to grams."
+  },
+  {
+    "skill_id": "M4-M-006",
+    "skill_name": "Measure capacity using jugs in ml and l",
+    "caps_reference": "Grade 4, Term 4, Capacity",
+    "difficulty": 1.7,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "How much liquid is in this measuring jug? [Visual]"
+  },
+  {
+    "skill_id": "M4-M-007",
+    "skill_name": "Convert between ml and l",
+    "caps_reference": "Grade 4, Term 4, Capacity",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-M-006", "M4-N-022"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Convert {a} l to ml."
+  },
+  {
+    "skill_id": "M4-M-008",
+    "skill_name": "Read time on an analogue clock and convert to digital",
+    "caps_reference": "Grade 4, Term 1, Time",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-F-002"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is the digital time for the analogue clock shown? [Visual]"
+  },
+  {
+    "skill_id": "M4-M-009",
+    "skill_name": "Convert between units of time (minutes/hours, days/weeks)",
+    "caps_reference": "Grade 4, Term 1, Time",
+    "difficulty": 2.4,
+    "prerequisites": ["M4-M-008", "M4-N-021"],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "How many {unit2} are in {a} {unit1}?"
+  },
+  {
+    "skill_id": "M4-M-010",
+    "skill_name": "Calculate elapsed time across hours",
+    "caps_reference": "Grade 4, Term 1, Time",
+    "difficulty": 3.1,
+    "prerequisites": ["M4-M-009", "M4-N-011"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "An event starts at {time1} and ends at {time2}. How long did it last?"
+  },
+  {
+    "skill_id": "M4-M-011",
+    "skill_name": "Calculate the perimeter of polygons by adding side lengths",
+    "caps_reference": "Grade 4, Term 3, Perimeter",
+    "difficulty": 2.1,
+    "prerequisites": ["M4-M-002", "M4-N-011"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Find the perimeter of the shape with sides {s1}, {s2}, {s3}, {s4} cm."
+  },
+  {
+    "skill_id": "M4-M-012",
+    "skill_name": "Determine area by counting squares on a grid",
+    "caps_reference": "Grade 4, Term 4, Area",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-N-018"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Count the shaded squares to find the area of the shape. [Visual]"
+  },
+  {
+    "skill_id": "M4-M-013",
+    "skill_name": "Read temperature in degrees Celsius",
+    "caps_reference": "Grade 4, Term 3, Temperature",
+    "difficulty": 1.4,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What temperature is shown on this thermometer? [Visual]"
+  },
+  {
+    "skill_id": "M4-M-014",
+    "skill_name": "Calculate temperature differences",
+    "caps_reference": "Grade 4, Term 3, Temperature",
+    "difficulty": 3.2,
+    "prerequisites": ["M4-N-015", "M4-M-013"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "The temperature was {temp1}°C and rose to {temp2}°C. By how much did it rise?"
+  },
+  {
+    "skill_id": "M4-G-001",
+    "skill_name": "Identify and name basic 2D shapes (circles, triangles, squares, rectangles)",
+    "caps_reference": "Grade 4, Term 1, Properties of 2D Shapes",
+    "difficulty": 1.2,
+    "prerequisites": [],
+    "mastery_criteria": "4 correct in a row",
+    "question_template": "Name the shape shown. [Visual]"
+  },
+  {
+    "skill_id": "M4-G-002",
+    "skill_name": "Compare squares and rectangles (similarities/differences)",
+    "caps_reference": "Grade 4, Term 3, Properties of 2D Shapes",
+    "difficulty": 1.6,
+    "prerequisites": ["M4-G-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which property is true for both a square and a rectangle?"
+  },
+  {
+    "skill_id": "M4-G-003",
+    "skill_name": "Count and verify the number of sides and vertices in polygons",
+    "caps_reference": "Grade 4, Term 1, Properties of 2D Shapes",
+    "difficulty": 1.4,
+    "prerequisites": ["M4-G-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "How many vertices does a {polygon_name} have?"
+  },
+  {
+    "skill_id": "M4-G-004",
+    "skill_name": "Identify 3D objects with curved vs flat surfaces",
+    "caps_reference": "Grade 4, Term 2, Properties of 3D Objects",
+    "difficulty": 1.3,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Does a {3d_object} have curved surfaces, flat surfaces, or both?"
+  },
+  {
+    "skill_id": "M4-G-005",
+    "skill_name": "Identify similarities and differences between cubes and prisms",
+    "caps_reference": "Grade 4, Term 1, Properties of 3D Objects",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-G-004"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which of these objects has all square faces? [Visual Array]"
+  },
+  {
+    "skill_id": "M4-G-006",
+    "skill_name": "Identify the 2D shapes that make up the faces of 3D objects",
+    "caps_reference": "Grade 4, Term 2, Properties of 3D Objects",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-G-001", "M4-G-005"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What 2D shape makes up the base of a {3d_object}?"
+  },
+  {
+    "skill_id": "M4-G-007",
+    "skill_name": "Identify the line of symmetry in a given 2D shape",
+    "caps_reference": "Grade 4, Term 2, Symmetry",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-G-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Does the dashed line show a line of symmetry? (Yes/No) [Visual]"
+  },
+  {
+    "skill_id": "M4-G-008",
+    "skill_name": "Tessellate 2D shapes without gaps or overlaps",
+    "caps_reference": "Grade 4, Term 4, Transformations",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-G-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which of these shapes can tile a floor without leaving gaps? [Visual]"
+  },
+  {
+    "skill_id": "M4-G-009",
+    "skill_name": "Match different views (top, front, side) to a 3D object",
+    "caps_reference": "Grade 4, Term 4, Viewing Objects",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-G-006"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which image shows the {view_type} view of this object? [Visuals]"
+  },
+  {
+    "skill_id": "M4-G-010",
+    "skill_name": "Locate position on a simple alphanumeric grid",
+    "caps_reference": "Grade 4, Term 4, Position and Movement",
+    "difficulty": 1.5,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What object is located at grid reference {col}{row}? [Visual Map]"
+  },
+  {
+    "skill_id": "M4-P-001",
+    "skill_name": "Extend geometric patterns with shapes",
+    "caps_reference": "Grade 4, Term 1, Geometric Patterns",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-G-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Identify the next shape in the sequence: [Visual Array]"
+  },
+  {
+    "skill_id": "M4-P-002",
+    "skill_name": "Extend a numeric sequence involving a constant addition rule",
+    "caps_reference": "Grade 4, Term 1, Numeric Patterns",
+    "difficulty": 1.6,
+    "prerequisites": ["M4-N-010"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is the next number: {n1}, {n2}, {n3}, ___?"
+  },
+  {
+    "skill_id": "M4-P-003",
+    "skill_name": "Extend a numeric sequence involving a constant subtraction rule",
+    "caps_reference": "Grade 4, Term 1, Numeric Patterns",
+    "difficulty": 1.7,
+    "prerequisites": ["M4-N-014"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is the next number: {n1}, {n2}, {n3}, ___?"
+  },
+  {
+    "skill_id": "M4-P-004",
+    "skill_name": "Determine and state the rule for a given numeric sequence",
+    "caps_reference": "Grade 4, Term 1, Numeric Patterns",
+    "difficulty": 2.4,
+    "prerequisites": ["M4-P-002", "M4-P-003"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is the rule for this pattern: {n1}, {n2}, {n3}?"
+  },
+  {
+    "skill_id": "M4-P-005",
+    "skill_name": "Calculate output values for a flow diagram using addition/subtraction",
+    "caps_reference": "Grade 4, Term 1, Number Sentences",
+    "difficulty": 2.0,
+    "prerequisites": ["M4-N-010", "M4-N-014"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Input is {input}. Rule is +{addend}. What is the Output?"
+  },
+  {
+    "skill_id": "M4-P-006",
+    "skill_name": "Use flow diagrams for multiplication rules",
+    "caps_reference": "Grade 4, Term 1, Number Sentences",
+    "difficulty": 2.5,
+    "prerequisites": ["M4-N-021", "M4-P-005"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Input is {input}. Rule is x{multiplier}. What is the Output?"
+  },
+  {
+    "skill_id": "M4-P-007",
+    "skill_name": "Determine missing input in a flow diagram using inverse operations",
+    "caps_reference": "Grade 4, Term 1, Number Sentences",
+    "difficulty": 2.8,
+    "prerequisites": ["M4-P-005", "M4-N-016"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Output is {output}. Rule is +{addend}. What was the Input?"
+  },
+  {
+    "skill_id": "M4-P-008",
+    "skill_name": "Solve for a missing number in an addition or subtraction equation",
+    "caps_reference": "Grade 4, Term 1, Number Sentences",
+    "difficulty": 2.5,
+    "prerequisites": ["M4-N-011", "M4-N-016"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "{a} + ___ = {c}. What is the missing number?"
+  },
+  {
+    "skill_id": "M4-D-001",
+    "skill_name": "Collect data using tally marks and frequency tables",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 1.1,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Convert this list of items into a tally mark count: {data_list}"
+  },
+  {
+    "skill_id": "M4-D-002",
+    "skill_name": "Read and interpret a pictograph",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 1.4,
+    "prerequisites": ["M4-N-018"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If 1 icon = {value}, how many items does {count} icons represent? [Visual]"
+  },
+  {
+    "skill_id": "M4-D-003",
+    "skill_name": "Answer comparison questions from a bar graph",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-N-014"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Based on the graph, how many more {category1} are there than {category2}? [Visual]"
+  },
+  {
+    "skill_id": "M4-D-004",
+    "skill_name": "Construct a bar graph from a frequency table",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 2.5,
+    "prerequisites": ["M4-D-001"],
+    "mastery_criteria": "2 correct in a row (Interactive)",
+    "question_template": "Drag the bars to the correct heights based on this table. [Interactive UI]"
+  },
+  {
+    "skill_id": "M4-D-005",
+    "skill_name": "Interpret pie charts using fractions",
+    "caps_reference": "Grade 4, Term 3, Data Handling",
+    "difficulty": 3.5,
+    "prerequisites": ["M4-F-008"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What fraction of the pie chart is shaded blue? [Visual]"
+  },
+  {
+    "skill_id": "M4-D-006",
+    "skill_name": "List possible outcomes for a coin toss or dice roll",
+    "caps_reference": "Grade 4, Term 4, Probability",
+    "difficulty": 1.5,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If you roll a standard 6-sided die, what are all the possible numbers you could roll?"
+  },
+  {
+    "skill_id": "M4-D-007",
+    "skill_name": "Predict likelihood (likely, unlikely, certain, impossible)",
+    "caps_reference": "Grade 4, Term 4, Probability",
+    "difficulty": 2.5,
+    "prerequisites": ["M4-D-006"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If you draw a marble from a bag containing 9 red and 1 blue, is drawing blue likely or unlikely?"
+  },
+  {
+    "skill_id": "M4-N-035",
+    "skill_name": "Identify the value of a specific digit in a 4-digit number",
+    "caps_reference": "Grade 4, Term 1, Whole Numbers",
+    "difficulty": 1.4,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is the value of the {target_digit} in {number}?"
+  },
+  {
+    "skill_id": "M4-N-036",
+    "skill_name": "Break down numbers to multiply (e.g., 14 x 3 = 10x3 + 4x3)",
+    "caps_reference": "Grade 4, Term 2, Multiplication",
+    "difficulty": 2.7,
+    "prerequisites": ["M4-N-022"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Complete the step: {tens} x {b} + {units} x {b} = ?"
+  },
+  {
+    "skill_id": "M4-N-037",
+    "skill_name": "Recall division facts for 3x and 4x tables",
+    "caps_reference": "Grade 4, Term 1, Division",
+    "difficulty": 1.9,
+    "prerequisites": ["M4-N-027"],
+    "mastery_criteria": "5 correct in a row (timed)",
+    "question_template": "{a} ÷ {b} = ?"
+  },
+  {
+    "skill_id": "M4-N-038",
+    "skill_name": "Recall division facts for 6, 7, 8, and 9",
+    "caps_reference": "Grade 4, Term 1, Division",
+    "difficulty": 2.3,
+    "prerequisites": ["M4-N-037"],
+    "mastery_criteria": "5 correct in a row (timed)",
+    "question_template": "{a} ÷ {b} = ?"
+  },
+  {
+    "skill_id": "M4-N-039",
+    "skill_name": "Divide 2-digit numbers by 1-digit numbers without remainders",
+    "caps_reference": "Grade 4, Term 2, Division",
+    "difficulty": 2.6,
+    "prerequisites": ["M4-N-029"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "{a} ÷ {b} = ? (no remainder)"
+  },
+  {
+    "skill_id": "M4-N-040",
+    "skill_name": "Solve word problems involving grouping and sharing with remainders",
+    "caps_reference": "Grade 4, Term 2, Division",
+    "difficulty": 3.5,
+    "prerequisites": ["M4-N-031"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Share {a} items among {b} people. How many are left over?"
+  },
+  {
+    "skill_id": "M4-F-013",
+    "skill_name": "Shade a visual model to represent a given numerical fraction",
+    "caps_reference": "Grade 4, Term 1, Common Fractions",
+    "difficulty": 1.7,
+    "prerequisites": ["M4-F-004"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Shade {n}/{d} of the shape. [Interactive Visual]"
+  },
+  {
+    "skill_id": "M4-F-014",
+    "skill_name": "Compare fractions with the same denominator using visual models",
+    "caps_reference": "Grade 4, Term 3, Common Fractions",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-F-013"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which shaded shape represents the larger fraction? [Visual]"
+  },
+  {
+    "skill_id": "M4-F-015",
+    "skill_name": "Compare unit fractions using visual models",
+    "caps_reference": "Grade 4, Term 3, Common Fractions",
+    "difficulty": 2.1,
+    "prerequisites": ["M4-F-013"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which is larger: 1/{d1} or 1/{d2}? [Visual]"
+  },
+  {
+    "skill_id": "M4-F-016",
+    "skill_name": "Identify equivalent fractions using a fraction wall (thirds, sixths)",
+    "caps_reference": "Grade 4, Term 3, Common Fractions",
+    "difficulty": 2.6,
+    "prerequisites": ["M4-F-010"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "How many sixths are equal to 1/3? [Visual]"
+  },
+  {
+    "skill_id": "M4-F-017",
+    "skill_name": "Add fractions with the same denominator using visual models",
+    "caps_reference": "Grade 4, Term 4, Common Fractions",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-F-013"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Combine the shaded parts: {visual_1} + {visual_2}"
+  },
+  {
+    "skill_id": "M4-F-018",
+    "skill_name": "Subtract fractions with the same denominator using visual models",
+    "caps_reference": "Grade 4, Term 4, Common Fractions",
+    "difficulty": 2.3,
+    "prerequisites": ["M4-F-013"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Remove {n2} shaded parts from {n1} parts. What is left? [Visual]"
+  },
+  {
+    "skill_id": "M4-F-019",
+    "skill_name": "Solve word problems involving addition and subtraction of fractions",
+    "caps_reference": "Grade 4, Term 4, Common Fractions",
+    "difficulty": 3.0,
+    "prerequisites": ["M4-F-011", "M4-F-012"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "You eat {n1}/{d} of a pizza and your friend eats {n2}/{d}. How much is eaten?"
+  },
+  {
+    "skill_id": "M4-M-015",
+    "skill_name": "Identify and choose appropriate units of length (mm, cm, m, km)",
+    "caps_reference": "Grade 4, Term 1, Length",
+    "difficulty": 1.2,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which unit would you use to measure the distance between two cities?"
+  },
+  {
+    "skill_id": "M4-M-016",
+    "skill_name": "Measure lengths accurately in mm and cm using a ruler",
+    "caps_reference": "Grade 4, Term 1, Length",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-M-015"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "How long is this line in cm? [Visual Ruler]"
+  },
+  {
+    "skill_id": "M4-M-017",
+    "skill_name": "Identify and choose appropriate units of mass (g, kg)",
+    "caps_reference": "Grade 4, Term 3, Mass",
+    "difficulty": 1.2,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which unit is best to measure the mass of an apple?"
+  },
+  {
+    "skill_id": "M4-M-018",
+    "skill_name": "Solve addition and subtraction word problems involving mass",
+    "caps_reference": "Grade 4, Term 3, Mass",
+    "difficulty": 2.8,
+    "prerequisites": ["M4-M-005", "M4-N-015"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "A bag weighs {mass1}g. You add {mass2}g. What is the total mass?"
+  },
+  {
+    "skill_id": "M4-M-019",
+    "skill_name": "Identify and choose appropriate units of capacity (ml, l)",
+    "caps_reference": "Grade 4, Term 2, Capacity",
+    "difficulty": 1.2,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which unit is best to measure medicine in a spoon?"
+  },
+  {
+    "skill_id": "M4-M-020",
+    "skill_name": "Solve addition and subtraction word problems involving capacity",
+    "caps_reference": "Grade 4, Term 2, Capacity",
+    "difficulty": 2.8,
+    "prerequisites": ["M4-M-007", "M4-N-015"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "A bucket has {cap1}L. You pour out {cap2}L. How much is left?"
+  },
+  {
+    "skill_id": "M4-M-021",
+    "skill_name": "Read time on a 12-hour and 24-hour digital clock",
+    "caps_reference": "Grade 4, Term 1, Time",
+    "difficulty": 1.6,
+    "prerequisites": ["M4-N-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Convert {12h_time} to 24-hour format."
+  },
+  {
+    "skill_id": "M4-M-022",
+    "skill_name": "Calculate elapsed time within the same hour",
+    "caps_reference": "Grade 4, Term 1, Time",
+    "difficulty": 2.3,
+    "prerequisites": ["M4-M-008", "M4-N-014"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If it is {time1} and 20 minutes pass, what time is it?"
+  },
+  {
+    "skill_id": "M4-M-023",
+    "skill_name": "Read and interpret calendars (days, weeks, months)",
+    "caps_reference": "Grade 4, Term 1, Time",
+    "difficulty": 1.5,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If today is the 4th, what date is next Tuesday? [Visual Calendar]"
+  },
+  {
+    "skill_id": "M4-M-024",
+    "skill_name": "Understand perimeter as the total distance around the outside of a 2D shape",
+    "caps_reference": "Grade 4, Term 3, Perimeter",
+    "difficulty": 1.4,
+    "prerequisites": ["M4-M-016"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Trace the perimeter of this shape. [Interactive Visual]"
+  },
+  {
+    "skill_id": "M4-M-025",
+    "skill_name": "Understand area as the number of square units covering a surface",
+    "caps_reference": "Grade 4, Term 4, Area",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-N-018"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Which shape covers more surface area? [Visual]"
+  },
+  {
+    "skill_id": "M4-G-011",
+    "skill_name": "Distinguish between straight and curved sides in 2D shapes",
+    "caps_reference": "Grade 4, Term 1, Properties of 2D Shapes",
+    "difficulty": 1.0,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Does this shape have straight sides, curved sides, or both?"
+  },
+  {
+    "skill_id": "M4-G-012",
+    "skill_name": "Identify and name regular and irregular polygons (pentagons, hexagons)",
+    "caps_reference": "Grade 4, Term 1, Properties of 2D Shapes",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-G-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Name the irregular polygon shown. [Visual]"
+  },
+  {
+    "skill_id": "M4-G-013",
+    "skill_name": "Identify and name 3D objects with curved surfaces (spheres, cylinders, cones)",
+    "caps_reference": "Grade 4, Term 2, Properties of 3D Objects",
+    "difficulty": 1.3,
+    "prerequisites": ["M4-G-004"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Identify the cylinder from the group. [Visual]"
+  },
+  {
+    "skill_id": "M4-G-014",
+    "skill_name": "Identify and name 3D objects with only flat surfaces",
+    "caps_reference": "Grade 4, Term 2, Properties of 3D Objects",
+    "difficulty": 1.4,
+    "prerequisites": ["M4-G-004"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Identify the rectangular prism. [Visual]"
+  },
+  {
+    "skill_id": "M4-G-015",
+    "skill_name": "Identify symmetrical vs. asymmetrical 2D shapes",
+    "caps_reference": "Grade 4, Term 2, Symmetry",
+    "difficulty": 1.3,
+    "prerequisites": ["M4-G-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Is this shape symmetrical? (Yes/No) [Visual]"
+  },
+  {
+    "skill_id": "M4-G-016",
+    "skill_name": "Draw a line of symmetry on a given 2D shape",
+    "caps_reference": "Grade 4, Term 2, Symmetry",
+    "difficulty": 1.7,
+    "prerequisites": ["M4-G-007"],
+    "mastery_criteria": "2 correct in a row (Interactive)",
+    "question_template": "Draw the line of symmetry on this triangle. [Interactive]"
+  },
+  {
+    "skill_id": "M4-G-017",
+    "skill_name": "Identify polygons within a grid and list their coordinates",
+    "caps_reference": "Grade 4, Term 4, Position and Movement",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-G-001", "M4-G-010"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "At what grid coordinate is the triangle located? [Visual Map]"
+  },
+  {
+    "skill_id": "M4-P-009",
+    "skill_name": "Identify and extend a repeating geometric shape pattern",
+    "caps_reference": "Grade 4, Term 1, Geometric Patterns",
+    "difficulty": 1.2,
+    "prerequisites": ["M4-G-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What shape comes next: Circle, Square, Triangle, Circle, Square, ___?"
+  },
+  {
+    "skill_id": "M4-P-010",
+    "skill_name": "State the rule for a growing geometric pattern in words",
+    "caps_reference": "Grade 4, Term 1, Geometric Patterns",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-P-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Describe how this pattern grows. [Visual]"
+  },
+  {
+    "skill_id": "M4-P-011",
+    "skill_name": "Extend a numeric sequence involving a multiplication rule",
+    "caps_reference": "Grade 4, Term 1, Numeric Patterns",
+    "difficulty": 2.1,
+    "prerequisites": ["M4-N-019"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Find the next number: {n1}, {n2}, {n3}, ___? (Rule: multiply by {x})"
+  },
+  {
+    "skill_id": "M4-P-012",
+    "skill_name": "Generate a numeric sequence given a starting number and rule",
+    "caps_reference": "Grade 4, Term 1, Numeric Patterns",
+    "difficulty": 2.2,
+    "prerequisites": ["M4-P-004"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Start at {start} and add {rule}. What are the next 3 numbers?"
+  },
+  {
+    "skill_id": "M4-P-013",
+    "skill_name": "Identify equivalence in number sentences (e.g., 3+4 = 4+3)",
+    "caps_reference": "Grade 4, Term 1, Number Sentences",
+    "difficulty": 1.5,
+    "prerequisites": ["M4-N-010"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "True or False: {a} + {b} = {b} + {a}"
+  },
+  {
+    "skill_id": "M4-D-008",
+    "skill_name": "Read and extract information from a tally chart",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 1.2,
+    "prerequisites": ["M4-D-001"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "How many tallies are shown for {category}? [Visual]"
+  },
+  {
+    "skill_id": "M4-D-009",
+    "skill_name": "Read and interpret a pictograph with a many-to-1 correspondence",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 1.8,
+    "prerequisites": ["M4-D-002", "M4-N-019"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "If 1 icon = {value}, how much does {count} icons represent?"
+  },
+  {
+    "skill_id": "M4-D-010",
+    "skill_name": "Read and extract discrete data from a simple bar graph",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 1.5,
+    "prerequisites": [],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "What is the value for {category} on the bar graph? [Visual]"
+  },
+  {
+    "skill_id": "M4-D-011",
+    "skill_name": "Extract categorical data from a text scenario to build a table",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 2.5,
+    "prerequisites": ["M4-D-008"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Read the story and fill in the missing table values."
+  },
+  {
+    "skill_id": "M4-D-012",
+    "skill_name": "Solve multi-step addition/subtraction word problems using graph data",
+    "caps_reference": "Grade 4, Term 1, Data Handling",
+    "difficulty": 3.0,
+    "prerequisites": ["M4-D-003", "M4-N-015"],
+    "mastery_criteria": "3 correct in a row",
+    "question_template": "Use the graph to find the total of {cat1} and {cat2}. [Visual]"
+  }
+]
