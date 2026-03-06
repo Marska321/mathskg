@@ -1,4 +1,5 @@
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
+
 
 class QuestionSchema(BaseModel):
     skill_id: str
@@ -8,22 +9,23 @@ class QuestionSchema(BaseModel):
     options: list[str]
     correct_answer: str
     hints: list[str]
-    error_mapping: dict[str, str] = {} 
+    error_mapping: dict[str, str] = Field(default_factory=dict)
 
-    @field_validator('options')
+    @field_validator("options")
     @classmethod
-    def check_options_length_and_uniqueness(cls, v):
-        if len(v) != 4:
-            raise ValueError(f"A multiple choice question must have exactly 4 options. Got {len(v)}.")
-        if len(set(v)) != 4:
+    def check_options_length_and_uniqueness(cls, value: list[str]) -> list[str]:
+        if len(value) != 4:
+            raise ValueError(f"A multiple choice question must have exactly 4 options. Got {len(value)}.")
+        if len(set(value)) != 4:
             raise ValueError("All options (including distractors) must be mathematically unique.")
-        return v
+        return value
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def check_answer_in_options(self):
         if self.correct_answer not in self.options:
             raise ValueError("The correct_answer must be present in the generated options array.")
         return self
+
 
 class AnswerSubmission(BaseModel):
     student_id: str
@@ -31,4 +33,4 @@ class AnswerSubmission(BaseModel):
     student_answer: str
     correct_answer: str
     time_taken_seconds: float
-    error_mapping: dict[str, str] = {}
+    error_mapping: dict[str, str] = Field(default_factory=dict)
