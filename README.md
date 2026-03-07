@@ -1,0 +1,57 @@
+# Lumen Engine (CAPS Math Platform)
+
+FastAPI backend for the CAPS-aligned mastery platform, including:
+- diagnostic lifecycle APIs
+- adaptive practice + mastery routing
+- student report APIs
+- teacher analytics APIs
+- authoring APIs + authoring console
+
+## 1. Local Setup
+
+From project root (`C:\Users\User\Downloads\mathskg`):
+
+```bat
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -U pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+## 2. Environment Variables
+
+Create `.env` (or copy from `.env.example`) and set:
+
+```env
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_KEY=your-supabase-key
+```
+
+## 3. Run API
+
+```bat
+.\.venv\Scripts\python.exe -m uvicorn main:app --reload --host 0.0.0.0 --port 8000 --env-file .env
+```
+
+## 4. Test
+
+```bat
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+## 5. Key URLs
+
+- Swagger docs: `http://localhost:8000/docs`
+- Teacher dashboard: `http://localhost:8000/review`
+- Authoring console: `http://localhost:8000/authoring/review`
+
+## 6. Core API Groups
+
+- Diagnostic: `/diagnostic/start`, `/diagnostic/answer`, `/diagnostic/result`
+- Practice: `/generate-practice`, `/next-skill`, `/submit-answer`
+- Student reports: `/students/{student_id}/mastery`, `/students/{student_id}/repair-path`, `/students/{student_id}/report`
+- Teacher analytics: `/teacher/class/{class_id}/heatmap`, `/teacher/class/{class_id}/bottlenecks`, `/teacher/class/{class_id}/caps-coverage`
+- Authoring: `/authoring/skills`, `/authoring/templates`, `/authoring/publish`
+
+## 7. CI
+
+GitHub Actions workflow is in `.github/workflows/tests.yml` and runs `pytest -q` on push and pull request.

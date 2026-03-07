@@ -15,6 +15,7 @@ __pycache__/
 # Logs and temporary files
 *.log
 *.txt
+!requirements.txt
 err.json
 seed_log.txt
 seed_log2.txt
