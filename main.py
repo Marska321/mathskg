@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from core.config import validate_required_env
+from routers.authoring import router as authoring_router
 from routers.dashboard import router as dashboard_router
 from routers.diagnostic import router as diagnostic_router
 from routers.students import router as students_router
@@ -16,3 +17,4 @@ app.include_router(submission_router)
 app.include_router(diagnostic_router)
 app.include_router(students_router)
 app.include_router(teacher_router)
+app.include_router(authoring_router)
