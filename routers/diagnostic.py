@@ -100,7 +100,6 @@ async def diagnostic_start(request: DiagnosticStartRequest):
         initial_state = initialize_diagnostic_state(all_skill_ids)
         student_state = _load_student_state(request.student_id, all_skill_ids)
 
-        # Prefer existing mastery evidence over blank diagnostic initialization.
         current_state = {
             skill_id: student_state.get(skill_id, initial_state[skill_id])
             for skill_id in all_skill_ids
@@ -108,13 +107,32 @@ async def diagnostic_start(request: DiagnosticStartRequest):
 
         edges = _get_edges()
         next_skill_id = _select_next_templated_skill(current_state, edges)
-        if not next_skill_id:
-            raise HTTPException(
-                status_code=409,
-                detail="No diagnostic templates are currently available for the configured skills.",
-            )
 
         session = create_diagnostic_session(request.student_id, current_state)
+        if session is None:
+            raise HTTPException(status_code=500, detail="Failed to create diagnostic session.")
+
+        if not next_skill_id:
+            result = build_diagnostic_result(current_state, question_count=0)
+            saved = update_diagnostic_session(
+                session["session_id"],
+                {
+                    "status": "complete",
+                    "placement_skill_id": result["placement_skill_id"],
+                    "confidence": result["confidence"],
+                    "next_skill_id": None,
+                },
+            )
+            if saved is None:
+                raise HTTPException(status_code=500, detail="Failed to finalize diagnostic session.")
+
+            return {
+                "status": "complete",
+                "session_id": session["session_id"],
+                "message": "Diagnostic already complete for available templated skills.",
+                **result,
+            }
+
         session = update_diagnostic_session(
             session["session_id"],
             {"next_skill_id": next_skill_id},
@@ -253,7 +271,6 @@ async def diagnostic_result(session_id: str = Query(..., description="Diagnostic
             session.get("question_count") or 0,
         )
 
-        # Persist computed placement for in-progress sessions if not already set.
         if session.get("placement_skill_id") is None and result["placement_skill_id"] is not None:
             update_diagnostic_session(
                 session["session_id"],
