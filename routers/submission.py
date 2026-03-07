@@ -4,6 +4,8 @@ from core.database import supabase
 from models.domain import MasteryStatus
 from models.mastery import PracticeRequest
 from models.submission import AnswerSubmission
+from services.adaptive_policy import decide_next_skill_policy, prioritize_repair_nodes
+from services.attempt_evaluator import evaluate_attempt
 from services.graph_service import get_skill_prerequisites
 from services.mastery_engine import update_student_mastery
 from templates.engine import LumenEngine
@@ -32,71 +34,58 @@ def generate_practice(request: PracticeRequest):
 
 @router.get("/next-skill")
 def get_next_skill(student_id: str):
-    res = (
+    mastery_rows_response = (
         supabase.table("student_mastery")
         .select("skill_id, status, active_repair_path")
         .eq("student_id", student_id)
         .execute()
     )
+    mastery_rows = mastery_rows_response.data or []
 
-    learning_skills = [
-        row
-        for row in res.data
-        if row["status"] in (MasteryStatus.LEARNING.value, MasteryStatus.NEEDS_REVIEW.value)
-    ]
-    if learning_skills:
-        target = learning_skills[0]
-        if target.get("active_repair_path") and len(target["active_repair_path"]) > 0:
-            return generate_question_payload(student_id, target["active_repair_path"][0])
-        return generate_question_payload(student_id, target["skill_id"])
+    edges_response = supabase.table("skill_prerequisites").select("skill_id, prerequisite_id").execute()
+    edges = edges_response.data or []
 
-    mastered_skills = [
-        row["skill_id"]
-        for row in res.data
-        if row["status"] == MasteryStatus.MASTERED.value
-    ]
+    decision = decide_next_skill_policy(mastery_rows, edges)
+    target_skill_id = decision["target_skill_id"]
 
-    all_edges = supabase.table("skill_prerequisites").select("*").execute()
-    available_skills = set()
+    if decision["policy"] == "complete" or target_skill_id is None:
+        return {
+            "policy": decision["policy"],
+            "reason": decision["reason"],
+            "message": "You have mastered the entire mathematical universe!",
+        }
 
-    for edge in all_edges.data:
-        if edge["prerequisite_id"] in mastered_skills:
-            deps = (
-                supabase.table("skill_prerequisites")
-                .select("prerequisite_id")
-                .eq("skill_id", edge["skill_id"])
-                .execute()
-            )
-            if all(dep["prerequisite_id"] in mastered_skills for dep in deps.data):
-                available_skills.add(edge["skill_id"])
-
-    available_skills = available_skills - set(mastered_skills)
-
-    if available_skills:
-        next_skill = sorted(available_skills)[0]
+    if decision["policy"] == "new":
         (
             supabase.table("student_mastery")
             .upsert(
                 {
                     "student_id": student_id,
-                    "skill_id": next_skill,
+                    "skill_id": target_skill_id,
                     "status": MasteryStatus.LEARNING.value,
                 }
             )
             .execute()
         )
-        return generate_question_payload(student_id, next_skill)
 
-    return {"message": "You have mastered the entire mathematical universe!"}
+    payload = generate_question_payload(student_id, target_skill_id)
+    return {
+        "policy": decision["policy"],
+        "reason": decision["reason"],
+        "source_skill_id": decision["source_skill_id"],
+        **payload,
+    }
 
 
 @router.post("/submit-answer")
 def submit_answer(submission: AnswerSubmission):
-    is_correct = submission.student_answer.strip().lower() == submission.correct_answer.strip().lower()
-
-    error_type = None
-    if not is_correct:
-        error_type = submission.error_mapping.get(submission.student_answer, "UNKNOWN_ERROR")
+    attempt_result = evaluate_attempt(
+        student_answer=submission.student_answer,
+        correct_answer=submission.correct_answer,
+        error_mapping=submission.error_mapping,
+    )
+    is_correct = attempt_result["is_correct"]
+    error_type = attempt_result["error_type"]
 
     (
         supabase.table("attempt_logs")
@@ -132,14 +121,8 @@ def submit_answer(submission: AnswerSubmission):
 
     if new_status == MasteryStatus.NEEDS_REVIEW.value:
         repair_nodes = get_skill_prerequisites(submission.skill_id)
+        repair_nodes = prioritize_repair_nodes(repair_nodes, error_type)
         if repair_nodes:
-            if error_type == "MC_SUB_02_TENS_COLUMN_ERROR" and "M2-PV-040" in repair_nodes:
-                repair_nodes.remove("M2-PV-040")
-                repair_nodes.insert(0, "M2-PV-040")
-            elif error_type == "MC_SUB_01_ADDED_INSTEAD" and "M2-S-049" in repair_nodes:
-                repair_nodes.remove("M2-S-049")
-                repair_nodes.insert(0, "M2-S-049")
-
             (
                 supabase.table("student_mastery")
                 .update(
