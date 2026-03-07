@@ -2,161 +2,382 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumen Forge - Human Review</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumen Teacher Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #f4f5f7;
+            --panel: #ffffff;
+            --ink: #111317;
+            --muted: #5d6572;
+            --accent: #1259d6;
+            --accent-soft: #d9e8ff;
+            --warn: #d97706;
+            --danger: #c24040;
+            --ok: #157f3b;
+            --line: #dde2ea;
+            --glow: radial-gradient(circle at 15% 15%, #d9e8ff 0, transparent 38%), radial-gradient(circle at 80% 10%, #ffe7ce 0, transparent 30%);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            background: var(--glow), var(--bg);
+            font-family: "Space Grotesk", sans-serif;
+        }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 18px 30px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .topbar {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .title {
+            font-size: clamp(1.4rem, 2.4vw, 2rem);
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .controls input,
+        .controls button {
+            border: 1px solid var(--line);
+            background: var(--panel);
+            border-radius: 10px;
+            font: inherit;
+            padding: 10px 12px;
+        }
+
+        .controls input {
+            width: 170px;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 0.9rem;
+        }
+
+        .controls button {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .status {
+            font-size: 0.88rem;
+            color: var(--muted);
+            min-height: 20px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+        }
+
+        .card {
+            grid-column: span 12;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 10px 22px rgba(17, 19, 23, 0.05);
+            overflow: auto;
+        }
+
+        .card h2 {
+            margin: 0 0 10px;
+            font-size: 1.02rem;
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .kpi {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .kpi .label {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .kpi .value {
+            margin-top: 4px;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 520px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.89rem;
+            vertical-align: top;
+        }
+
+        th {
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            background: #fbfcff;
+        }
+
+        .mono { font-family: "IBM Plex Mono", monospace; }
+        .pill {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .pill.ok { background: #e8f8ef; color: var(--ok); }
+        .pill.warn { background: #fff4e5; color: var(--warn); }
+        .pill.bad { background: #ffe9e9; color: var(--danger); }
+
+        .empty {
+            color: var(--muted);
+            font-size: 0.9rem;
+            padding: 6px 2px;
+        }
+
+        @media (min-width: 900px) {
+            .card.heatmap { grid-column: span 7; }
+            .card.bottlenecks { grid-column: span 5; }
+            .card.coverage { grid-column: span 12; }
+        }
+    </style>
 </head>
 
-<body class="bg-gray-50 flex h-screen font-sans">
-
-    <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div class="p-6 border-b border-gray-200">
-            <h1 class="text-xl font-bold text-gray-800">Lumen Forge</h1>
-            <p class="text-xs text-gray-500 mt-1">Template Review Gate</p>
-        </div>
-        <div id="skill-list" class="flex-1 overflow-y-auto p-4 space-y-2">
-        </div>
-    </div>
-
-    <div class="flex-1 flex flex-col h-full overflow-hidden">
-        <div class="p-8 flex-1 overflow-y-auto" id="preview-stage">
-            <div class="text-center text-gray-400 mt-20">
-                <p>Select a template from the sidebar to begin human review.</p>
+<body>
+    <main class="wrap">
+        <section class="topbar">
+            <div>
+                <h1 class="title">Teacher Analytics Dashboard</h1>
+                <p class="subtitle">Class-level mastery, bottlenecks, and CAPS coverage</p>
             </div>
-        </div>
-    </div>
-
-    <div class="w-80 bg-white border-l border-gray-200 flex flex-col">
-        <div class="p-6 border-b border-gray-200 bg-gray-900 text-white">
-            <h2 class="font-bold tracking-wide text-sm uppercase">Review Checklist</h2>
-        </div>
-        <div class="p-6 flex-1 flex flex-col gap-4">
-            <label class="flex items-center space-x-3 cursor-pointer">
-                <input type="checkbox" id="chk-math"
-                    class="form-checkbox h-5 w-5 text-green-500 rounded border-gray-300 review-chk" disabled>
-                <span class="text-gray-700 font-medium">Math is Correct</span>
-            </label>
-            <label class="flex items-center space-x-3 cursor-pointer">
-                <input type="checkbox" id="chk-format"
-                    class="form-checkbox h-5 w-5 text-green-500 rounded border-gray-300 review-chk" disabled>
-                <span class="text-gray-700 font-medium">Clear Formatting</span>
-            </label>
-            <label class="flex items-center space-x-3 cursor-pointer">
-                <input type="checkbox" id="chk-distract"
-                    class="form-checkbox h-5 w-5 text-green-500 rounded border-gray-300 review-chk" disabled>
-                <span class="text-gray-700 font-medium">Good Distractors</span>
-            </label>
-
-            <div class="mt-auto">
-                <button id="btn-approve" disabled
-                    class="w-full py-4 font-bold text-white bg-gray-300 cursor-not-allowed rounded uppercase tracking-wider transition-colors">
-                    Approve
-                </button>
+            <div class="controls">
+                <input id="classIdInput" class="mono" placeholder="class-1" value="class-1" />
+                <button id="loadBtn">Load Class</button>
             </div>
-        </div>
-    </div>
+        </section>
+
+        <div id="status" class="status">Ready.</div>
+
+        <section class="kpis" id="kpis">
+            <article class="kpi"><div class="label">Learners</div><div class="value" id="kpiLearners">-</div></article>
+            <article class="kpi"><div class="label">Skills (Heatmap)</div><div class="value" id="kpiSkills">-</div></article>
+            <article class="kpi"><div class="label">Overall CAPS Coverage</div><div class="value" id="kpiCoverage">-</div></article>
+        </section>
+
+        <section class="grid">
+            <article class="card heatmap">
+                <h2>Class Heatmap</h2>
+                <div id="heatmapContainer" class="empty">Load a class to view heatmap data.</div>
+            </article>
+
+            <article class="card bottlenecks">
+                <h2>Bottlenecks</h2>
+                <div id="bottleneckContainer" class="empty">Load a class to view bottlenecks.</div>
+            </article>
+
+            <article class="card coverage">
+                <h2>CAPS Coverage</h2>
+                <div id="coverageContainer" class="empty">Load a class to view coverage.</div>
+            </article>
+        </section>
+    </main>
 
     <script>
-        let currentSkill = null;
+        const statusEl = document.getElementById("status");
+        const classIdInput = document.getElementById("classIdInput");
+        const loadBtn = document.getElementById("loadBtn");
 
-        // Load skills on boot
-        async function loadSkills() {
-            const res = await fetch('/api/admin/skills');
-            const data = await res.json();
-            const list = document.getElementById('skill-list');
-            list.innerHTML = '';
-
-            data.skills.forEach(skill => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left px-4 py-3 rounded-md border border-gray-200 hover:border-gray-400 font-mono text-sm bg-white shadow-sm transition-all";
-                btn.innerText = skill;
-                btn.onclick = () => loadPreview(skill);
-                list.appendChild(btn);
-            });
+        function setStatus(message, isError = false) {
+            statusEl.textContent = message;
+            statusEl.style.color = isError ? "#c24040" : "#5d6572";
         }
 
-        // Load 3 previews for the selected skill
-        async function loadPreview(skillId) {
-            currentSkill = skillId;
-            const stage = document.getElementById('preview-stage');
-            stage.innerHTML = `<p class="text-gray-500 text-center mt-10">Generating 3 variations for ${skillId}...</p>`;
+        function renderHeatmap(data) {
+            const el = document.getElementById("heatmapContainer");
+            if (!data.skills || data.skills.length === 0) {
+                el.innerHTML = '<div class="empty">No mastery rows available for this class.</div>';
+                return;
+            }
 
-            // Enable checkboxes
-            document.querySelectorAll('.review-chk').forEach(chk => {
-                chk.disabled = false;
-                chk.checked = false;
-            });
-            updateApproveButton();
-
-            const res = await fetch(`/api/admin/preview/${skillId}`);
-            const data = await res.json();
-
-            stage.innerHTML = `<h2 class="text-2xl font-bold mb-6 font-mono text-gray-800">Template: ${skillId}</h2>`;
-
-            data.previews.forEach((p, index) => {
-                // Find correct answer index
-                const correctHtml = p.options.map(opt => {
-                    const isCorrect = opt === p.correct_answer;
-                    const styles = isCorrect ? "border-green-500 bg-green-50 text-green-800 font-bold" : "border-gray-200 text-gray-600";
-                    return `<div class="px-4 py-3 border-2 rounded ${styles}">${opt}</div>`;
-                }).join('');
-
-                const hintsHtml = p.hints.map((hint, i) => `<li class="text-sm text-gray-600 mb-1">Step ${i + 1}: ${hint}</li>`).join('');
-
-                stage.innerHTML += `
-                    <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-6">
-                        <div class="text-xs font-mono text-gray-400 mb-4 uppercase tracking-wider">Seed: ${p.seed}</div>
-                        <div class="text-lg font-medium text-gray-900 mb-6 bg-yellow-50 inline-block px-2">${p.question_text}</div>
-                        
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                            ${correctHtml}
-                        </div>
-                        
-                        <div class="bg-gray-50 p-4 rounded-md border border-gray-100">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">I Do / We Do Logic:</h4>
-                            <ul class="list-disc pl-5">${hintsHtml}</ul>
-                        </div>
-                    </div>
+            const rows = data.skills.map((row) => {
+                const masteryClass = row.percent_mastered >= 70 ? "ok" : row.percent_mastered >= 40 ? "warn" : "bad";
+                return `
+                    <tr>
+                        <td class="mono">${row.skill_id}</td>
+                        <td>${row.mastered}</td>
+                        <td>${row.learning}</td>
+                        <td>${row.needs_review}</td>
+                        <td>${row.unknown}</td>
+                        <td><span class="pill ${masteryClass}">${row.percent_mastered}%</span></td>
+                    </tr>
                 `;
-            });
+            }).join("");
+
+            el.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Skill</th><th>Mastered</th><th>Learning</th><th>Needs Review</th><th>Unknown</th><th>% Mastered</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
         }
 
-        // Checkbox Logic
-        document.querySelectorAll('.review-chk').forEach(chk => {
-            chk.addEventListener('change', updateApproveButton);
-        });
+        function renderBottlenecks(data) {
+            const el = document.getElementById("bottleneckContainer");
+            if (!data.bottlenecks || data.bottlenecks.length === 0) {
+                el.innerHTML = '<div class="empty">No bottlenecks found with current threshold.</div>';
+                return;
+            }
 
-        function updateApproveButton() {
-            const allChecked = Array.from(document.querySelectorAll('.review-chk')).every(c => c.checked);
-            const btn = document.getElementById('btn-approve');
-            if (allChecked && currentSkill) {
-                btn.disabled = false;
-                btn.className = "w-full py-4 font-bold text-white bg-green-500 hover:bg-green-600 rounded uppercase tracking-wider transition-colors shadow-lg";
-            } else {
-                btn.disabled = true;
-                btn.className = "w-full py-4 font-bold text-white bg-gray-300 cursor-not-allowed rounded uppercase tracking-wider transition-colors";
+            const rows = data.bottlenecks.slice(0, 15).map((row) => {
+                const rate = Math.round(row.failure_rate * 100);
+                const severityClass = rate >= 70 ? "bad" : rate >= 40 ? "warn" : "ok";
+                return `
+                    <tr>
+                        <td class="mono">${row.skill_id}</td>
+                        <td>${row.failures}/${row.attempts}</td>
+                        <td><span class="pill ${severityClass}">${rate}%</span></td>
+                        <td class="mono">${row.top_error_type || "-"}</td>
+                    </tr>
+                `;
+            }).join("");
+
+            el.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Skill</th><th>Failures</th><th>Failure Rate</th><th>Top Error</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        function renderCoverage(data) {
+            const el = document.getElementById("coverageContainer");
+            if (!data.coverage || data.coverage.length === 0) {
+                el.innerHTML = '<div class="empty">No CAPS mappings available.</div>';
+                return;
+            }
+
+            const rows = data.coverage.map((row) => `
+                <tr>
+                    <td>${row.topic}</td>
+                    <td>${row.skills_mastered_by_class}/${row.skills_total}</td>
+                    <td>${row.coverage_percent}%</td>
+                </tr>
+            `).join("");
+
+            el.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Topic</th><th>Mastered / Total</th><th>Coverage</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        function renderKpis(heatmap, coverage) {
+            document.getElementById("kpiLearners").textContent = heatmap.learners ?? "-";
+            document.getElementById("kpiSkills").textContent = (heatmap.skills || []).length;
+            document.getElementById("kpiCoverage").textContent = `${coverage?.summary?.overall_coverage_percent ?? 0}%`;
+        }
+
+        async function loadClassAnalytics() {
+            const classId = classIdInput.value.trim();
+            if (!classId) {
+                setStatus("Class ID is required.", true);
+                return;
+            }
+
+            loadBtn.disabled = true;
+            setStatus(`Loading analytics for ${classId}...`);
+
+            try {
+                const [heatmapRes, bottleneckRes, coverageRes] = await Promise.all([
+                    fetch(`/teacher/class/${encodeURIComponent(classId)}/heatmap`),
+                    fetch(`/teacher/class/${encodeURIComponent(classId)}/bottlenecks`),
+                    fetch(`/teacher/class/${encodeURIComponent(classId)}/caps-coverage`),
+                ]);
+
+                if (!heatmapRes.ok || !bottleneckRes.ok || !coverageRes.ok) {
+                    throw new Error("One or more analytics endpoints returned an error.");
+                }
+
+                const heatmap = await heatmapRes.json();
+                const bottlenecks = await bottleneckRes.json();
+                const coverage = await coverageRes.json();
+
+                renderHeatmap(heatmap);
+                renderBottlenecks(bottlenecks);
+                renderCoverage(coverage);
+                renderKpis(heatmap, coverage);
+
+                setStatus(`Loaded analytics for ${classId}.`);
+            } catch (error) {
+                setStatus(`Failed to load analytics: ${error.message}`, true);
+            } finally {
+                loadBtn.disabled = false;
             }
         }
 
-        // Approve Action
-        document.getElementById('btn-approve').addEventListener('click', async () => {
-            const btn = document.getElementById('btn-approve');
-            btn.innerText = "APPROVING...";
-
-            await fetch(`/api/admin/approve/${currentSkill}`, { method: 'POST' });
-
-            btn.className = "w-full py-4 font-bold text-white bg-gray-800 rounded uppercase tracking-wider";
-            btn.innerText = "APPROVED";
-
-            setTimeout(() => {
-                document.querySelectorAll('.review-chk').forEach(chk => chk.checked = false);
-                updateApproveButton();
-                btn.innerText = "Approve";
-            }, 2000);
-        });
-
-        loadSkills();
+        loadBtn.addEventListener("click", loadClassAnalytics);
+        loadClassAnalytics();
     </script>
 </body>
 
