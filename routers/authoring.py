@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
 
 from core.database import supabase
 from models.authoring import (
@@ -17,6 +20,14 @@ from services.authoring_service import (
 )
 
 router = APIRouter()
+
+
+@router.get("/authoring/review")
+def authoring_console_page():
+    page_path = Path(__file__).resolve().parent.parent / "authoring.html"
+    if not page_path.exists():
+        raise HTTPException(status_code=404, detail="Authoring dashboard file not found.")
+    return FileResponse(page_path)
 
 
 @router.get("/authoring/skills")
@@ -71,7 +82,6 @@ def authoring_create_template(payload: TemplateCreatePayload):
             .execute()
         )
 
-        # Keep legacy linkage in skills table aligned for older consumers.
         (
             supabase.table("skills")
             .update({"question_template": payload.template_id})

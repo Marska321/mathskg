@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lumen Authoring Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #f6f7f9;
+            --panel: #ffffff;
+            --ink: #12151b;
+            --muted: #616a78;
+            --line: #dce2ea;
+            --accent: #0f5ed9;
+            --ok: #1a7f40;
+            --warn: #b15500;
+            --bad: #c13f3f;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Space Grotesk", sans-serif;
+            background: linear-gradient(160deg, #e8f0ff 0%, transparent 38%), var(--bg);
+            color: var(--ink);
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 16px 30px;
+            display: grid;
+            gap: 14px;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.3rem, 2.2vw, 1.8rem); }
+        .muted { color: var(--muted); }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+
+        .row { display: grid; gap: 12px; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+        .card {
+            grid-column: span 12;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 8px 20px rgba(18, 21, 27, 0.05);
+            overflow: auto;
+        }
+        .card h2 { margin: 0 0 8px; font-size: 1rem; }
+
+        .form-grid { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .form-grid .full { grid-column: span 2; }
+
+        input, textarea, button, select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font: inherit;
+            background: #fff;
+        }
+
+        textarea { min-height: 90px; resize: vertical; }
+
+        button {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .status { min-height: 20px; font-size: 0.9rem; }
+        .status.ok { color: var(--ok); }
+        .status.warn { color: var(--warn); }
+        .status.bad { color: var(--bad); }
+
+        table { width: 100%; border-collapse: collapse; min-width: 620px; }
+        th, td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; font-size: 0.86rem; }
+        th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+
+        .pill { border-radius: 999px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; }
+        .pill.pending { background: #fff5e6; color: var(--warn); }
+        .pill.live { background: #e9f7ee; color: var(--ok); }
+
+        @media (min-width: 900px) {
+            .card.skills { grid-column: span 12; }
+            .card.create { grid-column: span 6; }
+            .card.template { grid-column: span 6; }
+            .card.update { grid-column: span 6; }
+            .card.publish { grid-column: span 6; }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <header>
+            <h1>Authoring Console</h1>
+            <div class="muted">Create and publish skills/templates without touching SQL.</div>
+        </header>
+
+        <div id="status" class="status">Ready.</div>
+
+        <section class="row">
+            <article class="card skills">
+                <h2>Skills</h2>
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
+                    <select id="statusFilter" style="max-width:180px;">
+                        <option value="">All statuses</option>
+                        <option value="pending">pending</option>
+                        <option value="live">live</option>
+                        <option value="review">review</option>
+                        <option value="draft">draft</option>
+                    </select>
+                    <button id="refreshSkills" style="max-width:170px;">Refresh Skills</button>
+                </div>
+                <div id="skillsContainer" class="muted">Loading...</div>
+            </article>
+
+            <article class="card create">
+                <h2>Create Skill</h2>
+                <div class="form-grid">
+                    <input id="createSkillId" class="mono" placeholder="skill_id (e.g. M4-N-020)" />
+                    <input id="createSkillName" placeholder="skill name" />
+                    <input id="createStrand" placeholder="strand" />
+                    <input id="createDifficulty" type="number" step="0.1" value="1" />
+                    <textarea id="createCaps" class="full" placeholder='caps_reference (string or JSON, e.g. {"topic":"Fractions"})'></textarea>
+                    <button id="createSkillBtn" class="full">Create Skill</button>
+                </div>
+            </article>
+
+            <article class="card template">
+                <h2>Create Template</h2>
+                <div class="form-grid">
+                    <input id="templateSkillId" class="mono" placeholder="skill_id" />
+                    <input id="templateId" class="mono" placeholder="template_id" />
+                    <input id="templateVersion" type="number" value="1" />
+                    <input id="templateStatus" value="draft" />
+                    <textarea id="templateBody" class="full" placeholder='template_body JSON (e.g. {"kind":"mcq"})'></textarea>
+                    <button id="createTemplateBtn" class="full">Create Template</button>
+                </div>
+            </article>
+
+            <article class="card update">
+                <h2>Update Skill</h2>
+                <div class="form-grid">
+                    <input id="updateSkillId" class="mono" placeholder="skill_id" />
+                    <input id="updateSkillName" placeholder="new skill_name (optional)" />
+                    <input id="updateApprovalStatus" placeholder="approval_status (optional)" />
+                    <input id="updateDifficulty" type="number" step="0.1" placeholder="difficulty (optional)" />
+                    <button id="updateSkillBtn" class="full">Update Skill</button>
+                </div>
+            </article>
+
+            <article class="card publish">
+                <h2>Publish Skill</h2>
+                <div class="form-grid">
+                    <input id="publishSkillId" class="mono" placeholder="skill_id" />
+                    <select id="publishForce">
+                        <option value="false">force = false</option>
+                        <option value="true">force = true</option>
+                    </select>
+                    <button id="publishSkillBtn" class="full">Publish Skill</button>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        const statusEl = document.getElementById("status");
+
+        function setStatus(message, kind = "muted") {
+            statusEl.textContent = message;
+            statusEl.className = `status ${kind}`;
+        }
+
+        function parseMaybeJson(raw) {
+            const text = (raw || "").trim();
+            if (!text) return null;
+            if ((text.startsWith("{") && text.endsWith("}")) || (text.startsWith("[") && text.endsWith("]"))) {
+                return JSON.parse(text);
+            }
+            return text;
+        }
+
+        function renderSkills(skills) {
+            const el = document.getElementById("skillsContainer");
+            if (!skills || skills.length === 0) {
+                el.innerHTML = '<div class="muted">No skills found.</div>';
+                return;
+            }
+
+            const rows = skills.map((s) => {
+                const status = s.approval_status || "pending";
+                const pill = status === "live" ? "live" : "pending";
+                return `
+                    <tr>
+                        <td class="mono">${s.skill_id || ""}</td>
+                        <td>${s.skill_name || ""}</td>
+                        <td>${s.strand || ""}</td>
+                        <td>${s.difficulty ?? ""}</td>
+                        <td><span class="pill ${pill}">${status}</span></td>
+                    </tr>
+                `;
+            }).join("");
+
+            el.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Skill ID</th><th>Name</th><th>Strand</th><th>Difficulty</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        async function fetchSkills() {
+            const filter = document.getElementById("statusFilter").value;
+            const query = filter ? `?approval_status=${encodeURIComponent(filter)}` : "";
+            setStatus("Loading skills...");
+
+            const res = await fetch(`/authoring/skills${query}`);
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(err || "Failed to load skills");
+            }
+            const data = await res.json();
+            renderSkills(data.skills || []);
+            setStatus("Skills loaded.", "ok");
+        }
+
+        async function createSkill() {
+            const payload = {
+                skill_id: document.getElementById("createSkillId").value.trim(),
+                skill_name: document.getElementById("createSkillName").value.trim(),
+                strand: document.getElementById("createStrand").value.trim() || null,
+                difficulty: Number(document.getElementById("createDifficulty").value || "1"),
+                caps_reference: parseMaybeJson(document.getElementById("createCaps").value),
+            };
+
+            const res = await fetch("/authoring/skills", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(err || "Create skill failed");
+            }
+            await fetchSkills();
+            setStatus("Skill created.", "ok");
+        }
+
+        async function createTemplate() {
+            const payload = {
+                skill_id: document.getElementById("templateSkillId").value.trim(),
+                template_id: document.getElementById("templateId").value.trim(),
+                version: Number(document.getElementById("templateVersion").value || "1"),
+                status: document.getElementById("templateStatus").value.trim() || "draft",
+                template_body: parseMaybeJson(document.getElementById("templateBody").value) || {},
+            };
+
+            const res = await fetch("/authoring/templates", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(err || "Create template failed");
+            }
+            setStatus("Template created.", "ok");
+        }
+
+        async function updateSkill() {
+            const skillId = document.getElementById("updateSkillId").value.trim();
+            const payload = {};
+            const skillName = document.getElementById("updateSkillName").value.trim();
+            const approvalStatus = document.getElementById("updateApprovalStatus").value.trim();
+            const difficulty = document.getElementById("updateDifficulty").value.trim();
+
+            if (skillName) payload.skill_name = skillName;
+            if (approvalStatus) payload.approval_status = approvalStatus;
+            if (difficulty) payload.difficulty = Number(difficulty);
+
+            const res = await fetch(`/authoring/skills/${encodeURIComponent(skillId)}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(err || "Update skill failed");
+            }
+            await fetchSkills();
+            setStatus("Skill updated.", "ok");
+        }
+
+        async function publishSkill() {
+            const payload = {
+                skill_id: document.getElementById("publishSkillId").value.trim(),
+                force: document.getElementById("publishForce").value === "true",
+            };
+
+            const res = await fetch("/authoring/publish", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(err || "Publish failed");
+            }
+            await fetchSkills();
+            setStatus("Skill published.", "ok");
+        }
+
+        document.getElementById("refreshSkills").addEventListener("click", () => fetchSkills().catch((e) => setStatus(e.message, "bad")));
+        document.getElementById("statusFilter").addEventListener("change", () => fetchSkills().catch((e) => setStatus(e.message, "bad")));
+        document.getElementById("createSkillBtn").addEventListener("click", () => createSkill().catch((e) => setStatus(e.message, "bad")));
+        document.getElementById("createTemplateBtn").addEventListener("click", () => createTemplate().catch((e) => setStatus(e.message, "bad")));
+        document.getElementById("updateSkillBtn").addEventListener("click", () => updateSkill().catch((e) => setStatus(e.message, "bad")));
+        document.getElementById("publishSkillBtn").addEventListener("click", () => publishSkill().catch((e) => setStatus(e.message, "bad")));
+
+        fetchSkills().catch((e) => setStatus(e.message, "bad"));
+    </script>
+</body>
+
+</html>
