@@ -1,129 +1,293 @@
-# diagnostic_engine.py
-from typing import Optional
+from __future__ import annotations
 
-def initialize_diagnostic_state(skill_ids: list[str]) -> dict:
-    """
-    Sets all skills in the graph to an 'unknown' state at the start of the test.
-    """
+import json
+from pathlib import Path
+from typing import Any, Iterable, Optional
+
+
+class DiagnosticGraph:
+    def __init__(
+        self,
+        graph_path: str = "caps_graph.json",
+        records: Optional[Iterable[dict[str, Any]]] = None,
+    ) -> None:
+        if records is None:
+            records = self._load_records(graph_path)
+
+        self.skills_by_id: dict[str, dict[str, Any]] = {}
+        self.prerequisites_by_skill: dict[str, tuple[str, ...]] = {}
+        self.dependents_by_skill: dict[str, tuple[str, ...]] = {}
+        self.difficulty_by_skill: dict[str, float] = {}
+        self.terminal_skill_ids: tuple[str, ...] = ()
+        self.tested_skill_ids: set[str] = set()
+        self.assumed_known_skill_ids: set[str] = set()
+
+        self._build_indexes(list(records))
+
+    @classmethod
+    def from_records(cls, records: Iterable[dict[str, Any]]) -> "DiagnosticGraph":
+        return cls(records=list(records))
+
+    @classmethod
+    def from_edges(
+        cls,
+        edges: list[dict[str, str]],
+        skill_ids: Optional[Iterable[str]] = None,
+        difficulty_by_skill: Optional[dict[str, float]] = None,
+    ) -> "DiagnosticGraph":
+        skill_set = set(skill_ids or [])
+        prerequisites_by_skill: dict[str, list[str]] = {}
+
+        for edge in edges:
+            skill_id = edge["skill_id"]
+            prerequisite_id = edge["prerequisite_id"]
+            skill_set.add(skill_id)
+            skill_set.add(prerequisite_id)
+            prerequisites_by_skill.setdefault(skill_id, []).append(prerequisite_id)
+
+        records: list[dict[str, Any]] = []
+        for skill_id in sorted(skill_set):
+            raw_prerequisites = prerequisites_by_skill.get(skill_id, [])
+            unique_prerequisites = list(dict.fromkeys(raw_prerequisites))
+            records.append(
+                {
+                    "skill_id": skill_id,
+                    "skill_name": skill_id,
+                    "prerequisites": unique_prerequisites,
+                    "difficulty": (difficulty_by_skill or {}).get(skill_id, 0.0),
+                }
+            )
+
+        return cls(records=records)
+
+    def get_starting_nodes(self) -> list[str]:
+        if self.terminal_skill_ids:
+            return list(self.terminal_skill_ids)
+
+        if not self.skills_by_id:
+            return []
+
+        highest_difficulty = max(self.difficulty_by_skill.values(), default=0.0)
+        fallback = [
+            skill_id
+            for skill_id, difficulty in self.difficulty_by_skill.items()
+            if difficulty == highest_difficulty
+        ]
+        return self._sort_skill_ids(fallback)
+
+    def evaluate_answer(self, skill_id: str, is_correct: bool) -> list[str]:
+        self._validate_skill_id(skill_id)
+        self.tested_skill_ids.add(skill_id)
+
+        if not is_correct:
+            return self._sort_skill_ids(self.prerequisites_by_skill.get(skill_id, ()))
+
+        self.assumed_known_skill_ids.update(self.get_all_prerequisites(skill_id))
+
+        remaining_terminal_nodes = [
+            candidate_id
+            for candidate_id in self.terminal_skill_ids
+            if candidate_id != skill_id and candidate_id not in self.tested_skill_ids
+        ]
+        if remaining_terminal_nodes:
+            return self._sort_skill_ids(remaining_terminal_nodes)
+
+        fallback_candidates = [
+            candidate_id
+            for candidate_id in self.skills_by_id
+            if candidate_id != skill_id
+            and candidate_id not in self.tested_skill_ids
+            and candidate_id not in self.assumed_known_skill_ids
+        ]
+        return self._sort_skill_ids(fallback_candidates)
+
+    def get_all_prerequisites(self, skill_id: str) -> set[str]:
+        self._validate_skill_id(skill_id)
+        return self._walk_prerequisites(skill_id, set())
+
+    def get_all_downstream_dependencies(self, skill_id: str) -> set[str]:
+        self._validate_skill_id(skill_id)
+        return self._walk_dependents(skill_id, set())
+
+    def get_sorted_skill_ids(self) -> list[str]:
+        return self._sort_skill_ids(self.skills_by_id.keys())
+
+    def _load_records(self, graph_path: str) -> list[dict[str, Any]]:
+        path = Path(graph_path)
+        if not path.is_absolute():
+            path = Path(__file__).resolve().parent.parent / graph_path
+
+        with path.open("r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        if not isinstance(data, list):
+            raise ValueError("caps_graph.json must contain a list of skill records.")
+        return data
+
+    def _build_indexes(self, records: list[dict[str, Any]]) -> None:
+        referenced_skill_ids: set[str] = set()
+
+        normalized_records: dict[str, dict[str, Any]] = {}
+        for raw_record in records:
+            skill_id = str(raw_record["skill_id"]).strip()
+            prerequisites = [
+                prerequisite_id.strip()
+                for prerequisite_id in raw_record.get("prerequisites", [])
+                if prerequisite_id and prerequisite_id.strip()
+            ]
+            normalized_records[skill_id] = {
+                **raw_record,
+                "skill_id": skill_id,
+                "prerequisites": list(dict.fromkeys(prerequisites)),
+                "difficulty": float(raw_record.get("difficulty", 0.0) or 0.0),
+            }
+
+        for record in list(normalized_records.values()):
+            for prerequisite_id in record["prerequisites"]:
+                referenced_skill_ids.add(prerequisite_id)
+                if prerequisite_id not in normalized_records:
+                    normalized_records[prerequisite_id] = {
+                        "skill_id": prerequisite_id,
+                        "skill_name": prerequisite_id,
+                        "prerequisites": [],
+                        "difficulty": 0.0,
+                    }
+
+        dependents: dict[str, list[str]] = {skill_id: [] for skill_id in normalized_records}
+        for skill_id, record in normalized_records.items():
+            self.skills_by_id[skill_id] = record
+            self.prerequisites_by_skill[skill_id] = tuple(record["prerequisites"])
+            self.difficulty_by_skill[skill_id] = record["difficulty"]
+            dependents.setdefault(skill_id, [])
+            for prerequisite_id in record["prerequisites"]:
+                dependents.setdefault(prerequisite_id, []).append(skill_id)
+
+        self.dependents_by_skill = {
+            skill_id: tuple(self._sort_skill_ids(children))
+            for skill_id, children in dependents.items()
+        }
+
+        terminal_nodes = [
+            skill_id for skill_id in normalized_records if skill_id not in referenced_skill_ids
+        ]
+        self.terminal_skill_ids = tuple(self._sort_skill_ids(terminal_nodes))
+
+    def _sort_skill_ids(self, skill_ids: Iterable[str]) -> list[str]:
+        unique_skill_ids = list(dict.fromkeys(skill_ids))
+        return sorted(
+            unique_skill_ids,
+            key=lambda skill_id: (-self.difficulty_by_skill.get(skill_id, 0.0), skill_id),
+        )
+
+    def _validate_skill_id(self, skill_id: str) -> None:
+        if skill_id not in self.skills_by_id:
+            raise ValueError(f"Unknown skill_id '{skill_id}'.")
+
+    def _walk_prerequisites(self, skill_id: str, visited: set[str]) -> set[str]:
+        for prerequisite_id in self.prerequisites_by_skill.get(skill_id, ()): 
+            if prerequisite_id in visited:
+                continue
+            visited.add(prerequisite_id)
+            self._walk_prerequisites(prerequisite_id, visited)
+        return visited
+
+    def _walk_dependents(self, skill_id: str, visited: set[str]) -> set[str]:
+        for dependent_id in self.dependents_by_skill.get(skill_id, ()): 
+            if dependent_id in visited:
+                continue
+            visited.add(dependent_id)
+            self._walk_dependents(dependent_id, visited)
+        return visited
+
+
+def initialize_diagnostic_state(skill_ids: list[str]) -> dict[str, str]:
     return {skill_id: "unknown" for skill_id in skill_ids}
 
-def get_all_prerequisites(skill_id: str, edges: list[dict], visited: set = None) -> set:
-    """Recursively fetches all upstream prerequisites for a given skill."""
-    if visited is None:
-        visited = set()
-        
-    direct_prereqs = [edge['prerequisite_id'] for edge in edges if edge['skill_id'] == skill_id]
-    
-    for prereq in direct_prereqs:
-        if prereq not in visited:
-            visited.add(prereq)
-            get_all_prerequisites(prereq, edges, visited)
-            
-    return visited
 
-def get_all_downstream_dependencies(skill_id: str, edges: list[dict], visited: set = None) -> set:
-    """Recursively fetches all downstream skills that rely on a given skill."""
-    if visited is None:
-        visited = set()
-        
-    direct_deps = [edge['skill_id'] for edge in edges if edge['prerequisite_id'] == skill_id]
-    
-    for dep in direct_deps:
-        if dep not in visited:
-            visited.add(dep)
-            get_all_downstream_dependencies(dep, edges, visited)
-            
-    return visited
+def _graph_from_edges(edges: list[dict[str, str]], skill_ids: Optional[Iterable[str]] = None) -> DiagnosticGraph:
+    return DiagnosticGraph.from_edges(edges, skill_ids=skill_ids)
+
+
+def get_all_prerequisites(skill_id: str, edges: list[dict[str, str]], visited: set | None = None) -> set[str]:
+    graph = _graph_from_edges(edges)
+    prerequisites = graph.get_all_prerequisites(skill_id)
+    if visited is not None:
+        visited.update(prerequisites)
+        return visited
+    return prerequisites
+
+
+def get_all_downstream_dependencies(skill_id: str, edges: list[dict[str, str]], visited: set | None = None) -> set[str]:
+    graph = _graph_from_edges(edges)
+    dependencies = graph.get_all_downstream_dependencies(skill_id)
+    if visited is not None:
+        visited.update(dependencies)
+        return visited
+    return dependencies
+
 
 def process_diagnostic_answer(
-    skill_id: str, 
-    is_correct: bool, 
-    current_state: dict, 
-    edges: list[dict]
-) -> dict:
-    """
-    Updates the diagnostic state based on a single answer.
-    """
+    skill_id: str,
+    is_correct: bool,
+    current_state: dict[str, str],
+    edges: list[dict[str, str]],
+) -> dict[str, str]:
+    graph = _graph_from_edges(edges, skill_ids=current_state.keys())
     updated_state = current_state.copy()
-    
+
     if is_correct:
-        # 1. Mark the current skill as mastered
         updated_state[skill_id] = "mastered"
-        
-        # 2. Upward Sweep: Mark all prerequisites as assumed_mastered
-        prereqs = get_all_prerequisites(skill_id, edges)
-        for p in prereqs:
-            # Only overwrite if we don't already have hard data
-            if updated_state[p] == "unknown":
-                updated_state[p] = "assumed_mastered"
-                
-    else:
-        # 1. Mark the current skill as gap
-        updated_state[skill_id] = "gap"
-        
-        # 2. Downward Sweep: Mark all dependent skills as assumed_gap
-        deps = get_all_downstream_dependencies(skill_id, edges)
-        for d in deps:
-            if updated_state[d] == "unknown":
-                updated_state[d] = "assumed_gap"
-                
+        for prerequisite_id in graph.get_all_prerequisites(skill_id):
+            if updated_state.get(prerequisite_id) == "unknown":
+                updated_state[prerequisite_id] = "assumed_mastered"
+        return updated_state
+
+    updated_state[skill_id] = "gap"
+    for dependent_id in graph.get_all_downstream_dependencies(skill_id):
+        if updated_state.get(dependent_id) == "unknown":
+            updated_state[dependent_id] = "assumed_gap"
     return updated_state
 
-def is_diagnostic_complete(current_state: dict, question_count: int, max_questions: int = 30) -> bool:
-    """
-    Checks if the diagnostic test should terminate.
-    """
-    # Terminate if we've hit the question limit
+
+def is_diagnostic_complete(current_state: dict[str, str], question_count: int, max_questions: int = 30) -> bool:
     if question_count >= max_questions:
         return True
-        
-    # Terminate if there are no more 'unknown' nodes
-    unknown_count = sum(1 for state in current_state.values() if state == "unknown")
-    if unknown_count == 0:
-        return True
-        
-    return False
+    return all(state != "unknown" for state in current_state.values())
 
-def calculate_node_weight(skill_id: str, current_state: dict, edges: list[dict]) -> int:
-    """
-    Calculates how many 'unknown' nodes this skill will resolve in the worst-case scenario.
-    """
-    # Fetch all connected nodes (using the sweep functions we defined earlier)
-    prereqs = get_all_prerequisites(skill_id, edges)
-    deps = get_all_downstream_dependencies(skill_id, edges)
-    
-    # Filter down to only the nodes we don't know the answer to yet
-    unknown_prereqs = [p for p in prereqs if current_state.get(p) == "unknown"]
-    unknown_deps = [d for d in deps if current_state.get(d) == "unknown"]
-    
-    # If they pass, we auto-solve `unknown_prereqs`. 
-    # If they fail, we auto-solve `unknown_deps`.
-    # To optimize the test, we assume the worst case and try to maximize that floor.
-    worst_case_elimination = min(len(unknown_prereqs), len(unknown_deps))
-    
-    return worst_case_elimination
 
-def select_next_diagnostic_skill(current_state: dict, edges: list[dict]) -> Optional[str]:
-    """
-    Scans all remaining unknown skills and selects the one with the highest information gain.
-    """
-    # Get a list of everything we haven't tested or assumed yet
-    unknown_skills = [skill_id for skill_id, state in current_state.items() if state == "unknown"]
-    
-    if not unknown_skills:
-        return None # The diagnostic is complete
-        
-    best_skill = None
-    max_weight = -1
-    
-    for skill in unknown_skills:
-        weight = calculate_node_weight(skill, current_state, edges)
-        
-        # We found a node that splits the remaining graph better
-        if weight > max_weight:
-            max_weight = weight
-            best_skill = skill
-            
-    # Fallback: if we are at the fringes of the graph and weights are 0, 
-    # just pick the first available unknown node to keep moving.
-    return best_skill if best_skill else unknown_skills[0]
+def calculate_node_weight(skill_id: str, current_state: dict[str, str], edges: list[dict[str, str]]) -> int:
+    graph = _graph_from_edges(edges, skill_ids=current_state.keys())
+    unknown_prerequisites = [
+        prerequisite_id
+        for prerequisite_id in graph.get_all_prerequisites(skill_id)
+        if current_state.get(prerequisite_id) == "unknown"
+    ]
+    unknown_dependents = [
+        dependent_id
+        for dependent_id in graph.get_all_downstream_dependencies(skill_id)
+        if current_state.get(dependent_id) == "unknown"
+    ]
+    return min(len(unknown_prerequisites), len(unknown_dependents))
+
+
+def select_next_diagnostic_skill(current_state: dict[str, str], edges: list[dict[str, str]]) -> Optional[str]:
+    unknown_skill_ids = [
+        skill_id for skill_id, state in current_state.items() if state == "unknown"
+    ]
+    if not unknown_skill_ids:
+        return None
+
+    graph = _graph_from_edges(edges, skill_ids=current_state.keys())
+    starting_candidates = [
+        skill_id for skill_id in graph.get_starting_nodes() if skill_id in unknown_skill_ids
+    ]
+    if starting_candidates:
+        return starting_candidates[0]
+
+    ordered_unknown_skills = [
+        skill_id for skill_id in graph.get_sorted_skill_ids() if skill_id in unknown_skill_ids
+    ]
+    if ordered_unknown_skills:
+        return ordered_unknown_skills[0]
+
+    return sorted(unknown_skill_ids)[0]
