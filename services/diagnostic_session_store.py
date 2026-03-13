@@ -24,6 +24,7 @@ def _to_payload(session: dict[str, Any]) -> dict[str, Any]:
         'question_count': session['question_count'],
         'asked_skills': session['asked_skills'],
         'pending_skill_ids': session.get('pending_skill_ids', []),
+        'active_question': session.get('active_question'),
         'next_skill_id': session.get('next_skill_id'),
         'placement_skill_id': session.get('placement_skill_id'),
         'confidence': session.get('confidence'),
@@ -70,6 +71,7 @@ def create_diagnostic_session(
     student_id: str,
     current_state: dict[str, str],
     pending_skill_ids: list[str] | None = None,
+    active_question: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     now = _utc_now()
     session = {
@@ -80,6 +82,7 @@ def create_diagnostic_session(
         'question_count': 0,
         'asked_skills': [],
         'pending_skill_ids': copy.deepcopy(pending_skill_ids or []),
+        'active_question': copy.deepcopy(active_question),
         'next_skill_id': None,
         'placement_skill_id': None,
         'confidence': None,

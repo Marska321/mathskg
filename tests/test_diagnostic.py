@@ -1,6 +1,7 @@
 import pytest
 
 from models.diagnostic_bank import DiagnosticAnchorQuestion
+from models.domain import MasteryStatus
 from services.diagnostic_engine import (
     DiagnosticGraph,
     calculate_node_weight,
@@ -16,6 +17,10 @@ from services.diagnostic_orchestrator import (
     build_starting_skill_queue,
     select_next_anchor_question,
     should_complete_diagnostic,
+)
+from services.diagnostic_persistence import (
+    build_diagnostic_item_payload,
+    build_skill_estimate_payloads,
 )
 
 
@@ -132,6 +137,43 @@ def test_select_next_anchor_question_skips_missing_anchor_fetches():
 def test_should_complete_diagnostic_when_cap_reached():
     current_state = {'A': 'unknown'}
     assert should_complete_diagnostic(current_state, question_count=MAX_QUESTIONS)
+
+
+def test_build_diagnostic_item_payload_tracks_anchor_and_answer():
+    payload = build_diagnostic_item_payload(
+        diagnostic_session_id='session-1',
+        student_id='student-1',
+        question_order=3,
+        anchor=_anchor('M4-F-900', 'Q-3'),
+        student_answer='1/4',
+        is_correct=True,
+    )
+
+    assert payload['diagnostic_session_id'] == 'session-1'
+    assert payload['question_id'] == 'Q-3'
+    assert payload['student_answer'] == '1/4'
+    assert payload['is_correct'] is True
+
+
+def test_build_skill_estimate_payloads_maps_states_to_mastery_statuses():
+    payloads = build_skill_estimate_payloads(
+        diagnostic_session_id='session-1',
+        student_id='student-1',
+        current_state={
+            'A': MasteryStatus.MASTERED.value,
+            'B': MasteryStatus.GAP.value,
+            'C': MasteryStatus.LEARNING.value,
+            'D': MasteryStatus.UNKNOWN.value,
+        },
+    )
+
+    by_skill = {payload['skill_id']: payload for payload in payloads}
+    assert by_skill['A']['mastery_status'] == 'mastered'
+    assert by_skill['A']['student_mastery_status'] == MasteryStatus.MASTERED.value
+    assert by_skill['B']['mastery_status'] == 'remediation'
+    assert by_skill['B']['student_mastery_status'] == MasteryStatus.NEEDS_REVIEW.value
+    assert by_skill['C']['mastery_status'] == 'learning'
+    assert 'D' not in by_skill
 
 
 def test_initialize_diagnostic_state_sets_unknown_for_all_skills():

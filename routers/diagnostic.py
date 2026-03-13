@@ -11,6 +11,7 @@ from services.diagnostic_orchestrator import (
     extend_skill_queue,
     select_next_anchor_question,
 )
+from services.diagnostic_persistence import persist_diagnostic_item, persist_skill_estimates
 from services.diagnostic_result import build_diagnostic_result
 from services.diagnostic_session_store import (
     create_diagnostic_session,
@@ -29,6 +30,7 @@ class DiagnosticAnswerRequest(BaseModel):
     session_id: str
     skill_id: str
     is_correct: bool
+    student_answer: str | None = None
 
 
 def _normalize_status(raw_value: str | None) -> str:
@@ -112,6 +114,41 @@ def _complete_session_response(
     return payload
 
 
+def _persist_completion(
+    session_id: str,
+    student_id: str,
+    current_state: dict[str, str],
+    question_count: int,
+    asked_skills: list[str],
+    message: str | None = None,
+) -> dict:
+    payload = _complete_session_response(
+        session_id,
+        current_state,
+        question_count,
+        student_id=student_id,
+        message=message,
+    )
+    persist_skill_estimates(supabase_client, session_id, student_id, current_state)
+    saved = update_diagnostic_session(
+        session_id,
+        {
+            'status': 'complete',
+            'current_state': current_state,
+            'question_count': question_count,
+            'asked_skills': asked_skills,
+            'pending_skill_ids': [],
+            'active_question': None,
+            'placement_skill_id': payload['placement_skill_id'],
+            'confidence': payload['confidence'],
+            'next_skill_id': None,
+        },
+    )
+    if saved is None:
+        raise HTTPException(status_code=500, detail='Failed to update diagnostic session.')
+    return payload
+
+
 @router.post('/diagnostic/start')
 async def diagnostic_start(request: DiagnosticStartRequest):
     try:
@@ -140,35 +177,26 @@ async def diagnostic_start(request: DiagnosticStartRequest):
             request.student_id,
             current_state,
             pending_skill_ids=remaining_queue,
+            active_question=anchor.model_dump() if anchor is not None else None,
         )
         if session is None:
             raise HTTPException(status_code=500, detail='Failed to create diagnostic session.')
 
         if not next_skill_id or anchor is None:
-            payload = _complete_session_response(
+            return _persist_completion(
                 session['session_id'],
+                request.student_id,
                 current_state,
                 question_count=0,
+                asked_skills=[],
                 message='Diagnostic already complete for available anchor questions.',
             )
-            saved = update_diagnostic_session(
-                session['session_id'],
-                {
-                    'status': 'complete',
-                    'pending_skill_ids': [],
-                    'placement_skill_id': payload['placement_skill_id'],
-                    'confidence': payload['confidence'],
-                    'next_skill_id': None,
-                },
-            )
-            if saved is None:
-                raise HTTPException(status_code=500, detail='Failed to finalize diagnostic session.')
-            return payload
 
         session = update_diagnostic_session(
             session['session_id'],
             {
                 'pending_skill_ids': remaining_queue,
+                'active_question': anchor.model_dump(),
                 'next_skill_id': next_skill_id,
             },
         )
@@ -201,9 +229,11 @@ async def diagnostic_answer(request: DiagnosticAnswerRequest):
                 session['session_id'],
                 session.get('current_state') or {},
                 session.get('question_count') or 0,
+                student_id=session.get('student_id'),
             )
 
         current_state = session.get('current_state') or {}
+        active_question = session.get('active_question')
         asked_skills = [*(session.get('asked_skills') or []), request.skill_id]
         pending_skill_ids = session.get('pending_skill_ids') or []
 
@@ -214,6 +244,17 @@ async def diagnostic_answer(request: DiagnosticAnswerRequest):
             _get_edges(),
         )
         question_count = (session.get('question_count') or 0) + 1
+
+        if active_question is not None:
+            persist_diagnostic_item(
+                supabase_client,
+                diagnostic_session_id=session['session_id'],
+                student_id=session['student_id'],
+                question_order=question_count,
+                anchor=active_question,
+                student_answer=request.student_answer,
+                is_correct=request.is_correct,
+            )
 
         graph = _build_graph()
         _restore_graph_state(graph, current_state, session.get('asked_skills') or [])
@@ -226,27 +267,13 @@ async def diagnostic_answer(request: DiagnosticAnswerRequest):
         )
 
         if is_diagnostic_complete(updated_state, question_count, max_questions=MAX_QUESTIONS):
-            payload = _complete_session_response(
+            return _persist_completion(
                 session['session_id'],
+                session['student_id'],
                 updated_state,
                 question_count,
+                asked_skills,
             )
-            saved = update_diagnostic_session(
-                session['session_id'],
-                {
-                    'status': 'complete',
-                    'current_state': updated_state,
-                    'question_count': question_count,
-                    'asked_skills': asked_skills,
-                    'pending_skill_ids': [],
-                    'placement_skill_id': payload['placement_skill_id'],
-                    'confidence': payload['confidence'],
-                    'next_skill_id': None,
-                },
-            )
-            if saved is None:
-                raise HTTPException(status_code=500, detail='Failed to update diagnostic session.')
-            return payload
 
         next_skill_id, anchor, remaining_queue = select_next_anchor_question(
             graph,
@@ -257,28 +284,14 @@ async def diagnostic_answer(request: DiagnosticAnswerRequest):
         )
 
         if next_skill_id is None or anchor is None:
-            payload = _complete_session_response(
+            return _persist_completion(
                 session['session_id'],
+                session['student_id'],
                 updated_state,
                 question_count,
+                asked_skills,
                 message='Diagnostic ended because no anchor questions remain.',
             )
-            saved = update_diagnostic_session(
-                session['session_id'],
-                {
-                    'status': 'complete',
-                    'current_state': updated_state,
-                    'question_count': question_count,
-                    'asked_skills': asked_skills,
-                    'pending_skill_ids': [],
-                    'placement_skill_id': payload['placement_skill_id'],
-                    'confidence': payload['confidence'],
-                    'next_skill_id': None,
-                },
-            )
-            if saved is None:
-                raise HTTPException(status_code=500, detail='Failed to update diagnostic session.')
-            return payload
 
         saved = update_diagnostic_session(
             session['session_id'],
@@ -288,6 +301,7 @@ async def diagnostic_answer(request: DiagnosticAnswerRequest):
                 'question_count': question_count,
                 'asked_skills': asked_skills,
                 'pending_skill_ids': remaining_queue,
+                'active_question': anchor.model_dump(),
                 'next_skill_id': next_skill_id,
             },
         )

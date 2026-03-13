@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 import pytest
 
-# Ensure imports that rely on required env vars can initialize.
 os.environ.setdefault('SUPABASE_URL', 'https://example.supabase.co')
 os.environ.setdefault('SUPABASE_KEY', 'test-key')
 
@@ -133,6 +132,7 @@ class FakeQuery:
             'diagnostic_sessions': ['session_id'],
             'class_students': ['class_id', 'student_id'],
             'diagnostic_question_bank': ['question_id'],
+            'diagnostic_skill_estimates': ['diagnostic_session_id', 'skill_id'],
         }
         keys = defaults.get(self.table_name, [])
         return [key for key in keys if key in row]
@@ -203,6 +203,8 @@ def client_and_db(monkeypatch):
                 'active': True,
             },
         ],
+        'diagnostic_items': [],
+        'diagnostic_skill_estimates': [],
         'diagnostic_sessions': [],
     }
 
@@ -225,34 +227,48 @@ def client_and_db(monkeypatch):
     return TestClient(app), fake_db
 
 
-def test_diagnostic_flow_endpoints(client_and_db):
-    client, _ = client_and_db
+def test_diagnostic_flow_endpoints_persist_items_and_estimates(client_and_db):
+    client, db = client_and_db
 
-    start = client.post('/diagnostic/start', json={'student_id': 's1'})
+    start = client.post('/diagnostic/start', json={'student_id': 's2'})
     assert start.status_code == 200
     start_body = start.json()
-    assert start_body['status'] in {'in_progress', 'complete'}
-    assert 'session_id' in start_body
+    assert start_body['status'] == 'in_progress'
+    assert start_body['question']['question_id'] == 'Q-F-001-1'
 
-    if start_body['status'] == 'in_progress':
-        assert 'question' in start_body
-        assert start_body['max_questions'] == 25
-        answer = client.post(
-            '/diagnostic/answer',
-            json={
-                'session_id': start_body['session_id'],
-                'skill_id': start_body['next_skill'],
-                'is_correct': True,
-            },
-        )
-        assert answer.status_code == 200
-        assert answer.json()['status'] in {'in_progress', 'complete'}
+    answer = client.post(
+        '/diagnostic/answer',
+        json={
+            'session_id': start_body['session_id'],
+            'skill_id': start_body['next_skill'],
+            'student_answer': '1/4',
+            'is_correct': True,
+        },
+    )
+    assert answer.status_code == 200
+    answer_body = answer.json()
+    assert answer_body['status'] == 'complete'
 
-    result = client.get('/diagnostic/result', params={'session_id': start_body['session_id']})
-    assert result.status_code == 200
-    result_body = result.json()
-    assert result_body['session_id'] == start_body['session_id']
-    assert 'confidence' in result_body
+    assert len(db.tables['diagnostic_items']) == 1
+    item = db.tables['diagnostic_items'][0]
+    assert item['diagnostic_session_id'] == start_body['session_id']
+    assert item['question_id'] == 'Q-F-001-1'
+    assert item['student_answer'] == '1/4'
+    assert item['is_correct'] is True
+
+    estimate_rows = db.tables['diagnostic_skill_estimates']
+    assert {row['skill_id'] for row in estimate_rows} == {'M4-N-014', 'M4-F-001'}
+    by_skill = {row['skill_id']: row for row in estimate_rows}
+    assert by_skill['M4-F-001']['mastery_status'] == 'mastered'
+    assert by_skill['M4-N-014']['mastery_status'] == 'learning'
+
+    mastery_rows = [
+        row for row in db.tables['student_mastery']
+        if row['student_id'] == 's2'
+    ]
+    mastery_by_skill = {row['skill_id']: row for row in mastery_rows}
+    assert mastery_by_skill['M4-F-001']['status'] == 'mastered'
+    assert mastery_by_skill['M4-N-014']['status'] == 'learning'
 
 
 def test_diagnostic_flow_completes_at_max_question_cap(client_and_db):
@@ -260,12 +276,23 @@ def test_diagnostic_flow_completes_at_max_question_cap(client_and_db):
     db.tables['diagnostic_sessions'].append(
         {
             'session_id': 'cap-session',
-            'student_id': 's1',
+            'student_id': 's2',
             'status': 'in_progress',
             'current_state': {'M4-N-014': 'unknown'},
             'question_count': 24,
             'asked_skills': [],
             'pending_skill_ids': [],
+            'active_question': {
+                'question_id': 'Q-N-014-1',
+                'grade_level': 4,
+                'domain': 'Subtraction',
+                'cluster': 'two-digit subtraction',
+                'skill_id': 'M4-N-014',
+                'question_text': '63 - 27 = ?',
+                'correct_answer': '36',
+                'difficulty': 1.0,
+                'active': True,
+            },
             'next_skill_id': 'M4-N-014',
             'placement_skill_id': None,
             'confidence': None,
@@ -279,11 +306,14 @@ def test_diagnostic_flow_completes_at_max_question_cap(client_and_db):
         json={
             'session_id': 'cap-session',
             'skill_id': 'M4-N-014',
+            'student_answer': '36',
             'is_correct': True,
         },
     )
     assert answer.status_code == 200
     assert answer.json()['status'] == 'complete'
+    assert len(db.tables['diagnostic_items']) == 1
+    assert len(db.tables['diagnostic_skill_estimates']) >= 1
 
 
 def test_students_endpoints(client_and_db):
