@@ -6,8 +6,8 @@ from fastapi.testclient import TestClient
 import pytest
 
 # Ensure imports that rely on required env vars can initialize.
-os.environ.setdefault("SUPABASE_URL", "https://example.supabase.co")
-os.environ.setdefault("SUPABASE_KEY", "test-key")
+os.environ.setdefault('SUPABASE_URL', 'https://example.supabase.co')
+os.environ.setdefault('SUPABASE_KEY', 'test-key')
 
 from routers import authoring as authoring_router_module
 from routers import diagnostic as diagnostic_router_module
@@ -26,15 +26,15 @@ class FakeQuery:
         self.db = db
         self.table_name = table_name
         self._filters = []
-        self._selected = "*"
+        self._selected = '*'
         self._limit = None
-        self._op = "select"
+        self._op = 'select'
         self._payload = None
         self._on_conflict = None
 
     def select(self, fields):
         self._selected = fields
-        self._op = "select"
+        self._op = 'select'
         return self
 
     def eq(self, key, value):
@@ -46,18 +46,18 @@ class FakeQuery:
         return self
 
     def insert(self, payload):
-        self._op = "insert"
+        self._op = 'insert'
         self._payload = payload
         return self
 
     def upsert(self, payload, on_conflict=None):
-        self._op = "upsert"
+        self._op = 'upsert'
         self._payload = payload
         self._on_conflict = on_conflict
         return self
 
     def update(self, payload):
-        self._op = "update"
+        self._op = 'update'
         self._payload = payload
         return self
 
@@ -67,14 +67,14 @@ class FakeQuery:
 
         table_rows = self.db.tables[self.table_name]
 
-        if self._op == "select":
+        if self._op == 'select':
             rows = [deepcopy(row) for row in table_rows if self._match(row)]
             rows = self._project(rows)
             if self._limit is not None:
                 rows = rows[: self._limit]
             return FakeResponse(rows)
 
-        if self._op == "insert":
+        if self._op == 'insert':
             payloads = self._payload if isinstance(self._payload, list) else [self._payload]
             created = []
             for payload in payloads:
@@ -83,7 +83,7 @@ class FakeQuery:
                 created.append(row)
             return FakeResponse(created)
 
-        if self._op == "update":
+        if self._op == 'update':
             updated = []
             for row in table_rows:
                 if self._match(row):
@@ -91,7 +91,7 @@ class FakeQuery:
                     updated.append(deepcopy(row))
             return FakeResponse(updated)
 
-        if self._op == "upsert":
+        if self._op == 'upsert':
             payloads = self._payload if isinstance(self._payload, list) else [self._payload]
             results = []
             for payload in payloads:
@@ -112,10 +112,10 @@ class FakeQuery:
         return all(row.get(key) == value for key, value in self._filters)
 
     def _project(self, rows):
-        if self._selected == "*":
+        if self._selected == '*':
             return rows
 
-        fields = [field.strip() for field in self._selected.split(",")]
+        fields = [field.strip() for field in self._selected.split(',')]
         projected = []
         for row in rows:
             projected.append({field: row.get(field) for field in fields})
@@ -123,15 +123,16 @@ class FakeQuery:
 
     def _conflict_keys(self, row):
         if self._on_conflict:
-            return [key.strip() for key in self._on_conflict.split(",")]
+            return [key.strip() for key in self._on_conflict.split(',')]
 
         defaults = {
-            "skills": ["skill_id"],
-            "student_mastery": ["student_id", "skill_id"],
-            "skill_prerequisites": ["skill_id", "prerequisite_id"],
-            "question_templates": ["template_id"],
-            "diagnostic_sessions": ["session_id"],
-            "class_students": ["class_id", "student_id"],
+            'skills': ['skill_id'],
+            'student_mastery': ['student_id', 'skill_id'],
+            'skill_prerequisites': ['skill_id', 'prerequisite_id'],
+            'question_templates': ['template_id'],
+            'diagnostic_sessions': ['session_id'],
+            'class_students': ['class_id', 'student_id'],
+            'diagnostic_question_bank': ['question_id'],
         }
         keys = defaults.get(self.table_name, [])
         return [key for key in keys if key in row]
@@ -156,40 +157,64 @@ class FakeSupabase:
 @pytest.fixture
 def client_and_db(monkeypatch):
     seed = {
-        "skills": [
-            {"skill_id": "M4-N-014", "skill_name": "Subtract", "caps_reference": {"topic": "Number"}, "approval_status": "pending", "difficulty": 1.0},
-            {"skill_id": "M4-F-001", "skill_name": "Equal parts", "caps_reference": {"topic": "Fractions"}, "approval_status": "pending", "difficulty": 1.0},
+        'skills': [
+            {'skill_id': 'M4-N-014', 'skill_name': 'Subtract', 'caps_reference': {'topic': 'Number'}, 'approval_status': 'pending', 'difficulty': 1.0},
+            {'skill_id': 'M4-F-001', 'skill_name': 'Equal parts', 'caps_reference': {'topic': 'Fractions'}, 'approval_status': 'pending', 'difficulty': 1.0},
         ],
-        "skill_prerequisites": [
-            {"skill_id": "M4-F-001", "prerequisite_id": "M4-N-014"},
+        'skill_prerequisites': [
+            {'skill_id': 'M4-F-001', 'prerequisite_id': 'M4-N-014'},
         ],
-        "student_mastery": [
-            {"student_id": "s1", "skill_id": "M4-N-014", "status": "mastered", "current_streak": 3, "error_patterns": {}, "active_repair_path": []},
-            {"student_id": "s1", "skill_id": "M4-F-001", "status": "needs_review", "current_streak": 0, "error_patterns": {"E1": 1}, "active_repair_path": ["M4-N-014"]},
-            {"student_id": "s2", "skill_id": "M4-N-014", "status": "learning", "current_streak": 1, "error_patterns": {}, "active_repair_path": []},
+        'student_mastery': [
+            {'student_id': 's1', 'skill_id': 'M4-N-014', 'status': 'mastered', 'current_streak': 3, 'error_patterns': {}, 'active_repair_path': []},
+            {'student_id': 's1', 'skill_id': 'M4-F-001', 'status': 'needs_review', 'current_streak': 0, 'error_patterns': {'E1': 1}, 'active_repair_path': ['M4-N-014']},
+            {'student_id': 's2', 'skill_id': 'M4-N-014', 'status': 'learning', 'current_streak': 1, 'error_patterns': {}, 'active_repair_path': []},
         ],
-        "attempt_logs": [
-            {"student_id": "s1", "skill_id": "M4-N-014", "is_correct": True, "error_type_detected": None},
-            {"student_id": "s1", "skill_id": "M4-F-001", "is_correct": False, "error_type_detected": "E1"},
-            {"student_id": "s2", "skill_id": "M4-N-014", "is_correct": False, "error_type_detected": "E2"},
+        'attempt_logs': [
+            {'student_id': 's1', 'skill_id': 'M4-N-014', 'is_correct': True, 'error_type_detected': None},
+            {'student_id': 's1', 'skill_id': 'M4-F-001', 'is_correct': False, 'error_type_detected': 'E1'},
+            {'student_id': 's2', 'skill_id': 'M4-N-014', 'is_correct': False, 'error_type_detected': 'E2'},
         ],
-        "class_students": [
-            {"class_id": "class-1", "student_id": "s1"},
-            {"class_id": "class-1", "student_id": "s2"},
+        'class_students': [
+            {'class_id': 'class-1', 'student_id': 's1'},
+            {'class_id': 'class-1', 'student_id': 's2'},
         ],
-        "question_templates": [],
-        "diagnostic_sessions": [],
+        'question_templates': [],
+        'diagnostic_question_bank': [
+            {
+                'question_id': 'Q-N-014-1',
+                'grade_level': 4,
+                'domain': 'Subtraction',
+                'cluster': 'two-digit subtraction',
+                'skill_id': 'M4-N-014',
+                'question_text': '63 - 27 = ?',
+                'correct_answer': '36',
+                'difficulty': 1.0,
+                'active': True,
+            },
+            {
+                'question_id': 'Q-F-001-1',
+                'grade_level': 4,
+                'domain': 'Fractions',
+                'cluster': 'equal parts',
+                'skill_id': 'M4-F-001',
+                'question_text': 'Which fraction shows one equal part out of four?',
+                'correct_answer': '1/4',
+                'difficulty': 1.0,
+                'active': True,
+            },
+        ],
+        'diagnostic_sessions': [],
     }
 
     fake_db = FakeSupabase(seed)
 
-    monkeypatch.setattr(authoring_router_module, "supabase", fake_db)
-    monkeypatch.setattr(students_router_module, "supabase", fake_db)
-    monkeypatch.setattr(teacher_router_module, "supabase", fake_db)
-    monkeypatch.setattr(diagnostic_router_module, "supabase_client", fake_db)
-    monkeypatch.setattr(diagnostic_session_store, "supabase", fake_db)
-    monkeypatch.setattr(diagnostic_session_store, "_USE_MEMORY_ONLY", False)
-    monkeypatch.setattr(diagnostic_session_store, "_MEMORY_SESSIONS", {})
+    monkeypatch.setattr(authoring_router_module, 'supabase', fake_db)
+    monkeypatch.setattr(students_router_module, 'supabase', fake_db)
+    monkeypatch.setattr(teacher_router_module, 'supabase', fake_db)
+    monkeypatch.setattr(diagnostic_router_module, 'supabase_client', fake_db)
+    monkeypatch.setattr(diagnostic_session_store, 'supabase', fake_db)
+    monkeypatch.setattr(diagnostic_session_store, '_USE_MEMORY_ONLY', False)
+    monkeypatch.setattr(diagnostic_session_store, '_MEMORY_SESSIONS', {})
 
     app = FastAPI()
     app.include_router(diagnostic_router_module.router)
@@ -203,108 +228,141 @@ def client_and_db(monkeypatch):
 def test_diagnostic_flow_endpoints(client_and_db):
     client, _ = client_and_db
 
-    start = client.post("/diagnostic/start", json={"student_id": "s1"})
+    start = client.post('/diagnostic/start', json={'student_id': 's1'})
     assert start.status_code == 200
     start_body = start.json()
-    assert start_body["status"] in {"in_progress", "complete"}
-    assert "session_id" in start_body
+    assert start_body['status'] in {'in_progress', 'complete'}
+    assert 'session_id' in start_body
 
-    if start_body["status"] == "in_progress":
+    if start_body['status'] == 'in_progress':
+        assert 'question' in start_body
+        assert start_body['max_questions'] == 25
         answer = client.post(
-            "/diagnostic/answer",
+            '/diagnostic/answer',
             json={
-                "session_id": start_body["session_id"],
-                "skill_id": start_body["next_skill"],
-                "is_correct": True,
+                'session_id': start_body['session_id'],
+                'skill_id': start_body['next_skill'],
+                'is_correct': True,
             },
         )
         assert answer.status_code == 200
+        assert answer.json()['status'] in {'in_progress', 'complete'}
 
-    result = client.get("/diagnostic/result", params={"session_id": start_body["session_id"]})
+    result = client.get('/diagnostic/result', params={'session_id': start_body['session_id']})
     assert result.status_code == 200
     result_body = result.json()
-    assert result_body["session_id"] == start_body["session_id"]
-    assert "confidence" in result_body
+    assert result_body['session_id'] == start_body['session_id']
+    assert 'confidence' in result_body
+
+
+def test_diagnostic_flow_completes_at_max_question_cap(client_and_db):
+    client, db = client_and_db
+    db.tables['diagnostic_sessions'].append(
+        {
+            'session_id': 'cap-session',
+            'student_id': 's1',
+            'status': 'in_progress',
+            'current_state': {'M4-N-014': 'unknown'},
+            'question_count': 24,
+            'asked_skills': [],
+            'pending_skill_ids': [],
+            'next_skill_id': 'M4-N-014',
+            'placement_skill_id': None,
+            'confidence': None,
+            'created_at': '2026-03-13T00:00:00+00:00',
+            'updated_at': '2026-03-13T00:00:00+00:00',
+        }
+    )
+
+    answer = client.post(
+        '/diagnostic/answer',
+        json={
+            'session_id': 'cap-session',
+            'skill_id': 'M4-N-014',
+            'is_correct': True,
+        },
+    )
+    assert answer.status_code == 200
+    assert answer.json()['status'] == 'complete'
 
 
 def test_students_endpoints(client_and_db):
     client, _ = client_and_db
 
-    mastery = client.get("/students/s1/mastery")
+    mastery = client.get('/students/s1/mastery')
     assert mastery.status_code == 200
     mastery_body = mastery.json()
-    assert mastery_body["student_id"] == "s1"
-    assert "summary" in mastery_body
+    assert mastery_body['student_id'] == 's1'
+    assert 'summary' in mastery_body
 
-    repairs = client.get("/students/s1/repair-path")
+    repairs = client.get('/students/s1/repair-path')
     assert repairs.status_code == 200
-    assert repairs.json()["student_id"] == "s1"
+    assert repairs.json()['student_id'] == 's1'
 
-    report = client.get("/students/s1/report")
+    report = client.get('/students/s1/report')
     assert report.status_code == 200
     report_body = report.json()
-    assert report_body["summary"]["total_attempts"] >= 1
+    assert report_body['summary']['total_attempts'] >= 1
 
 
 def test_teacher_endpoints(client_and_db):
     client, _ = client_and_db
 
-    heatmap = client.get("/teacher/class/class-1/heatmap")
+    heatmap = client.get('/teacher/class/class-1/heatmap')
     assert heatmap.status_code == 200
-    assert heatmap.json()["class_id"] == "class-1"
+    assert heatmap.json()['class_id'] == 'class-1'
 
-    bottlenecks = client.get("/teacher/class/class-1/bottlenecks")
+    bottlenecks = client.get('/teacher/class/class-1/bottlenecks')
     assert bottlenecks.status_code == 200
-    assert "bottlenecks" in bottlenecks.json()
+    assert 'bottlenecks' in bottlenecks.json()
 
-    coverage = client.get("/teacher/class/class-1/caps-coverage")
+    coverage = client.get('/teacher/class/class-1/caps-coverage')
     assert coverage.status_code == 200
-    assert "coverage" in coverage.json()
+    assert 'coverage' in coverage.json()
 
 
 def test_authoring_endpoints(client_and_db):
     client, db = client_and_db
 
-    list_resp = client.get("/authoring/skills")
+    list_resp = client.get('/authoring/skills')
     assert list_resp.status_code == 200
 
     create_skill = client.post(
-        "/authoring/skills",
+        '/authoring/skills',
         json={
-            "skill_id": "M4-N-099",
-            "skill_name": "New skill",
-            "difficulty": 1.2,
-            "approval_status": "pending",
+            'skill_id': 'M4-N-099',
+            'skill_name': 'New skill',
+            'difficulty': 1.2,
+            'approval_status': 'pending',
         },
     )
     assert create_skill.status_code == 200
 
     update_skill = client.put(
-        "/authoring/skills/M4-N-099",
-        json={"approval_status": "review"},
+        '/authoring/skills/M4-N-099',
+        json={'approval_status': 'review'},
     )
     assert update_skill.status_code == 200
 
     create_template = client.post(
-        "/authoring/templates",
+        '/authoring/templates',
         json={
-            "skill_id": "M4-N-099",
-            "template_id": "TPL-M4-N-099-1",
-            "template_body": {"kind": "mcq"},
-            "version": 1,
-            "status": "draft",
+            'skill_id': 'M4-N-099',
+            'template_id': 'TPL-M4-N-099-1',
+            'template_body': {'kind': 'mcq'},
+            'version': 1,
+            'status': 'draft',
         },
     )
     assert create_template.status_code == 200
 
     publish = client.post(
-        "/authoring/publish",
-        json={"skill_id": "M4-N-099", "force": False},
+        '/authoring/publish',
+        json={'skill_id': 'M4-N-099', 'force': False},
     )
     assert publish.status_code == 200
-    assert publish.json()["status"] == "published"
+    assert publish.json()['status'] == 'published'
 
-    # Verify persisted state in fake db.
-    skill_rows = db.tables["skills"]
-    published = [row for row in skill_rows if row.get("skill_id") == "M4-N-099"][0]
-    assert published["approval_status"] == "live"
+    skill_rows = db.tables['skills']
+    published = [row for row in skill_rows if row.get('skill_id') == 'M4-N-099'][0]
+    assert published['approval_status'] == 'live'
