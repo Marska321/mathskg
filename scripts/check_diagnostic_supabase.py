@@ -9,13 +9,12 @@ from typing import Any
 
 from dotenv import load_dotenv
 from postgrest.exceptions import APIError
-from supabase import Client, create_client
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from core.config import get_required_env
+from core.database import get_supabase
 from models.diagnostic_bank import DiagnosticAnchorQuestion
 from scripts.seed_diagnostic_question_bank import load_question_bank
 from services.diagnostic_engine import DiagnosticGraph
@@ -29,15 +28,7 @@ class CheckResult:
     extra: dict[str, Any] | None = None
 
 
-def create_supabase_client() -> Client:
-    load_dotenv()
-    return create_client(
-        get_required_env('SUPABASE_URL'),
-        get_required_env('SUPABASE_SERVICE_KEY'),
-    )
-
-
-def run_query(client: Client, table_name: str, fields: str = '*', limit: int | None = None):
+def run_query(client, table_name: str, fields: str = '*', limit: int | None = None):
     query = client.table(table_name).select(fields)
     if limit is not None:
         query = query.limit(limit)
@@ -250,7 +241,8 @@ def check_write_probes(client: Client) -> list[CheckResult]:
 
 
 def build_report(write_probe: bool) -> dict[str, Any]:
-    client = create_supabase_client()
+    load_dotenv()
+    client = get_supabase()
     graph = DiagnosticGraph()
     local_bank = load_question_bank()
 

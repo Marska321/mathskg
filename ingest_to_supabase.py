@@ -1,20 +1,18 @@
 import json
-import os
+import sys
+from pathlib import Path
 
 from pydantic import ValidationError
-from supabase import Client, create_client
 
+ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from core.database import get_supabase
 from models.domain import GraphSkillRecord
 
 
-def _required_env(name: str) -> str:
-    value = os.getenv(name)
-    if value is None or value.strip() == "":
-        raise RuntimeError(
-            f"Missing required environment variable: {name}. "
-            "Set it in your environment or .env file before running this script."
-        )
-    return value
+supabase = get_supabase()
 
 
 def _load_and_validate_graph(path: str) -> list[GraphSkillRecord]:
@@ -41,9 +39,6 @@ def _load_and_validate_graph(path: str) -> list[GraphSkillRecord]:
         )
 
     return validated_records
-
-
-supabase: Client = create_client(_required_env("SUPABASE_URL"), _required_env("SUPABASE_KEY"))
 
 
 def ingest_graph() -> None:
