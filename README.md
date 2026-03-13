@@ -52,6 +52,24 @@ SUPABASE_KEY=your-supabase-key
 - Teacher analytics: `/teacher/class/{class_id}/heatmap`, `/teacher/class/{class_id}/bottlenecks`, `/teacher/class/{class_id}/caps-coverage`
 - Authoring: `/authoring/skills`, `/authoring/templates`, `/authoring/publish`
 
-## 7. CI
+## 7. Diagnostic Anchor Bank
+
+Create the Supabase table with:
+
+```sql
+-- run sql/001_create_diagnostic_question_bank.sql in Supabase SQL editor
+```
+
+Seed the Grade 4 anchor bank with:
+
+```bat
+.\.venv\Scripts\python.exe scripts\seed_diagnostic_question_bank.py
+```
+
+Seed data lives in `data/grade4_diagnostic_question_bank.json`.
+
+Note: the current Grade 4 graph does not yet expose dedicated decimal skill nodes. The decimal anchors are temporarily mapped to the nearest existing comparison, fraction, and measurement skills so the bank remains graph-linked until dedicated decimal nodes are added.
+
+## 8. CI
 
 GitHub Actions workflow is in `.github/workflows/tests.yml` and runs `pytest -q` on push and pull request.
