@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from core.database import supabase as supabase_client
@@ -20,6 +23,7 @@ from services.diagnostic_session_store import (
 )
 
 router = APIRouter()
+HARNESS_PATH = Path(__file__).resolve().parent.parent / 'diagnostic_harness.html'
 
 
 class DiagnosticStartRequest(BaseModel):
@@ -50,10 +54,15 @@ def _get_all_skill_ids() -> list[str]:
 def _get_edges() -> list[dict[str, str]]:
     response = (
         supabase_client.table('skill_prerequisites')
-        .select('skill_id, prerequisite_id')
+        .select('*')
         .execute()
     )
-    return response.data
+    edges: list[dict[str, str]] = []
+    for row in response.data:
+        prerequisite_id = row.get('prerequisite_id') or row.get('prerequisite_skill_id')
+        if prerequisite_id:
+            edges.append({'skill_id': row['skill_id'], 'prerequisite_id': prerequisite_id})
+    return edges
 
 
 def _load_student_state(student_id: str, all_skill_ids: list[str]) -> dict[str, str]:
@@ -152,7 +161,8 @@ def _persist_completion(
 @router.post('/diagnostic/start')
 async def diagnostic_start(request: DiagnosticStartRequest):
     try:
-        all_skill_ids = _get_all_skill_ids()
+        graph = _build_graph()
+        all_skill_ids = graph.get_sorted_skill_ids()
         if not all_skill_ids:
             raise HTTPException(status_code=404, detail='No skills found for diagnostic.')
 
@@ -163,7 +173,6 @@ async def diagnostic_start(request: DiagnosticStartRequest):
             for skill_id in all_skill_ids
         }
 
-        graph = _build_graph()
         starting_queue = build_starting_skill_queue(graph, current_state)
         next_skill_id, anchor, remaining_queue = select_next_anchor_question(
             graph,
@@ -207,6 +216,7 @@ async def diagnostic_start(request: DiagnosticStartRequest):
             'status': 'in_progress',
             'session_id': session['session_id'],
             'next_skill': next_skill_id,
+            'next_skill_id': next_skill_id,
             'question_count': session['question_count'],
             'max_questions': MAX_QUESTIONS,
             'question': build_anchor_prompt(anchor),
@@ -312,6 +322,7 @@ async def diagnostic_answer(request: DiagnosticAnswerRequest):
             'status': 'in_progress',
             'session_id': session['session_id'],
             'next_skill': next_skill_id,
+            'next_skill_id': next_skill_id,
             'question_count': question_count,
             'max_questions': MAX_QUESTIONS,
             'question': build_anchor_prompt(anchor),
@@ -321,6 +332,13 @@ async def diagnostic_answer(request: DiagnosticAnswerRequest):
         raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get('/diagnostic/harness', include_in_schema=False)
+async def diagnostic_harness():
+    if not HARNESS_PATH.exists():
+        raise HTTPException(status_code=404, detail='Diagnostic harness not found.')
+    return FileResponse(HARNESS_PATH)
 
 
 @router.get('/diagnostic/result')
@@ -361,3 +379,4 @@ async def diagnostic_result(session_id: str = Query(..., description='Diagnostic
 @router.post('/diagnostic/next-question')
 async def get_next_question(request: DiagnosticStartRequest):
     return await diagnostic_start(request)
+

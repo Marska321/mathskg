@@ -13,6 +13,7 @@ from routers import diagnostic as diagnostic_router_module
 from routers import students as students_router_module
 from routers import submission as submission_router_module
 from routers import teacher as teacher_router_module
+from services.diagnostic_engine import DiagnosticGraph
 from services import diagnostic_session_store
 from services import graph_service
 
@@ -217,6 +218,16 @@ def client_and_db(monkeypatch):
     monkeypatch.setattr(teacher_router_module, 'supabase', fake_db)
     monkeypatch.setattr(submission_router_module, 'supabase', fake_db)
     monkeypatch.setattr(diagnostic_router_module, 'supabase_client', fake_db)
+    monkeypatch.setattr(
+        diagnostic_router_module,
+        '_build_graph',
+        lambda: DiagnosticGraph.from_records(
+            [
+                {'skill_id': 'M4-N-014', 'skill_name': 'Subtract', 'difficulty': 1.0, 'prerequisites': []},
+                {'skill_id': 'M4-F-001', 'skill_name': 'Equal parts', 'difficulty': 2.0, 'prerequisites': ['M4-N-014']},
+            ]
+        ),
+    )
     monkeypatch.setattr(diagnostic_session_store, 'supabase', fake_db)
     monkeypatch.setattr(graph_service, 'supabase', fake_db)
     monkeypatch.setattr(diagnostic_session_store, '_USE_MEMORY_ONLY', False)

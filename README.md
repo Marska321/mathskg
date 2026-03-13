@@ -23,8 +23,10 @@ Create `.env` (or copy from `.env.example`) and set:
 
 ```env
 SUPABASE_URL=https://your-project-id.supabase.co
-SUPABASE_KEY=your-supabase-key
+SUPABASE_SERVICE_KEY=your-supabase-service-role-key
 ```
+
+`SUPABASE_KEY` is still accepted as a legacy alias, but the API should prefer `SUPABASE_SERVICE_KEY`.
 
 ## 3. Run API
 
@@ -36,6 +38,12 @@ SUPABASE_KEY=your-supabase-key
 
 ```bat
 .\.venv\Scripts\python.exe -m pytest -q
+```
+
+Verify the live Supabase diagnostic setup with:
+
+```bat
+.\.venv\Scripts\python.exe scripts\check_diagnostic_supabase.py --write-probe
 ```
 
 ## 5. Key URLs
@@ -59,6 +67,7 @@ Run these SQL files in Supabase SQL editor, in order:
 ```sql
 -- 1. sql/001_create_diagnostic_question_bank.sql
 -- 2. sql/002_create_diagnostic_persistence_tables.sql
+-- 3. sql/003_grant_diagnostic_api_privileges.sql
 ```
 
 This creates:

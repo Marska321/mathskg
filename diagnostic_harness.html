@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumen Diagnostic Harness</title>
+    <style>
+        body { font-family: monospace; background: #1e1e1e; color: #00ff00; padding: 20px; max-width: 800px; margin: 0 auto; }
+        button { background: #00ff00; color: #1e1e1e; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
+        button:hover { background: #00cc00; }
+        .box { border: 1px solid #00ff00; padding: 15px; margin-bottom: 20px; background: #2a2a2a; }
+        input[type="text"] { padding: 8px; width: 80%; margin-right: 10px; background: #111; color: #00ff00; border: 1px solid #00ff00; }
+        pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <h1>Lumen Diagnostic Engine : Test Harness</h1>
+    <button id="startBtn" onclick="startTest()">Start Diagnostic Session</button>
+
+    <div id="testArea" style="display: none;">
+        <div class="box">
+            <h3>Current Anchor Question:</h3>
+            <p id="questionText">Loading...</p>
+            <p style="color: #ffaa00; font-size: 12px;" id="skillIdDisplay"></p>
+        </div>
+
+        <div class="box" id="answerArea">
+            <input type="text" id="answerInput" placeholder="Type answer here (or 'true'/'false' for simulation)">
+            <button onclick="submitAnswer()">Submit Answer</button>
+        </div>
+    </div>
+
+    <div class="box">
+        <h3>API Log</h3>
+        <pre id="apiLog">Ready...</pre>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let sessionId = null;
+        let currentSkillId = null;
+
+        function log(msg, data = null) {
+            const logBox = document.getElementById('apiLog');
+            let logText = `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+            if (data) logText += JSON.stringify(data, null, 2) + "\n\n";
+            logBox.innerText = logText + logBox.innerText;
+        }
+
+        async function startTest() {
+            log("Sending POST /diagnostic/start...");
+            try {
+                // Hardcoding a dummy student ID for testing purposes
+                const res = await fetch(`${API_URL}/diagnostic/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: "00000000-0000-0000-0000-000000000000" }) 
+                });
+                
+                const data = await res.json();
+                log("Received /start response:", data);
+
+                sessionId = data.session_id;
+                
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('testArea').style.display = 'block';
+                
+                renderQuestion(data);
+            } catch (err) {
+                log("ERROR: Is your FastAPI server running?", err.message);
+            }
+        }
+
+        async function submitAnswer() {
+            const answerVal = document.getElementById('answerInput').value;
+            // For harness purposes, we'll let you type 'true' to simulate a correct answer, 'false' for incorrect
+            const isCorrect = answerVal.toLowerCase() === 'true'; 
+
+            log(`Sending POST /diagnostic/answer (is_correct: ${isCorrect})...`);
+            
+            try {
+                const res = await fetch(`${API_URL}/diagnostic/answer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        skill_id: currentSkillId,
+                        is_correct: isCorrect,
+                        student_answer: answerVal
+                    })
+                });
+                
+                const data = await res.json();
+                log("Received /answer response:", data);
+
+                if (data.status === "complete") {
+                    document.getElementById('questionText').innerText = "🎉 DIAGNOSTIC COMPLETE 🎉";
+                    document.getElementById('skillIdDisplay').innerText = "Check your Supabase tables to see the persisted results!";
+                    document.getElementById('answerArea').style.display = 'none';
+                } else {
+                    document.getElementById('answerInput').value = '';
+                    renderQuestion(data);
+                }
+            } catch (err) {
+                log("ERROR:", err.message);
+            }
+        }
+
+        function renderQuestion(payload) {
+            currentSkillId = payload.next_skill_id || payload.next_skill;
+            document.getElementById('skillIdDisplay').innerText = `Target Skill: ${currentSkillId}`;
+            
+            if (payload.question) {
+                const questionText = payload.question.content || payload.question.question_text;
+                document.getElementById('questionText').innerText = questionText || JSON.stringify(payload.question);
+            } else {
+                document.getElementById('questionText').innerText = "No question payload found.";
+            }
+        }
+    </script>
+</body>
+</html>

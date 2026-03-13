@@ -59,4 +59,6 @@ def build_anchor_prompt(anchor: DiagnosticAnchorQuestion) -> dict:
         'domain': anchor.domain,
         'cluster': anchor.cluster,
         'question_text': anchor.question_text,
+        'content': anchor.question_text,
     }
+
