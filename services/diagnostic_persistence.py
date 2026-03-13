@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable
 
 from models.diagnostic_bank import DiagnosticAnchorQuestion
 from models.domain import MasteryStatus
+from services.graph_service import get_skill_prerequisites
+
+
+PrerequisiteLookup = Callable[[str], list[str]]
 
 
 def build_diagnostic_item_payload(
@@ -78,11 +82,33 @@ def build_skill_estimate_payloads(
     return payloads
 
 
+def build_student_mastery_from_estimates(
+    payloads: list[dict[str, Any]],
+    prerequisite_lookup: PrerequisiteLookup = get_skill_prerequisites,
+) -> list[dict[str, Any]]:
+    mastery_payloads: list[dict[str, Any]] = []
+    for payload in payloads:
+        active_repair_path = []
+        if payload['student_mastery_status'] == MasteryStatus.NEEDS_REVIEW.value:
+            active_repair_path = prerequisite_lookup(payload['skill_id'])
+
+        mastery_payloads.append(
+            {
+                'student_id': payload['student_id'],
+                'skill_id': payload['skill_id'],
+                'status': payload['student_mastery_status'],
+                'active_repair_path': active_repair_path,
+            }
+        )
+    return mastery_payloads
+
+
 def persist_skill_estimates(
     repository,
     diagnostic_session_id: str,
     student_id: str,
     current_state: dict[str, str],
+    prerequisite_lookup: PrerequisiteLookup = get_skill_prerequisites,
 ) -> list[dict[str, Any]]:
     payloads = build_skill_estimate_payloads(diagnostic_session_id, student_id, current_state)
     if not payloads:
@@ -93,14 +119,10 @@ def persist_skill_estimates(
         on_conflict='diagnostic_session_id,skill_id',
     ).execute()
 
-    mastery_payloads = [
-        {
-            'student_id': student_id,
-            'skill_id': payload['skill_id'],
-            'status': payload['student_mastery_status'],
-        }
-        for payload in payloads
-    ]
+    mastery_payloads = build_student_mastery_from_estimates(
+        payloads,
+        prerequisite_lookup=prerequisite_lookup,
+    )
     repository.table('student_mastery').upsert(
         mastery_payloads,
         on_conflict='student_id,skill_id',

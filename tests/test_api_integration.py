@@ -11,8 +11,10 @@ os.environ.setdefault('SUPABASE_KEY', 'test-key')
 from routers import authoring as authoring_router_module
 from routers import diagnostic as diagnostic_router_module
 from routers import students as students_router_module
+from routers import submission as submission_router_module
 from routers import teacher as teacher_router_module
 from services import diagnostic_session_store
+from services import graph_service
 
 
 class FakeResponse:
@@ -213,13 +215,16 @@ def client_and_db(monkeypatch):
     monkeypatch.setattr(authoring_router_module, 'supabase', fake_db)
     monkeypatch.setattr(students_router_module, 'supabase', fake_db)
     monkeypatch.setattr(teacher_router_module, 'supabase', fake_db)
+    monkeypatch.setattr(submission_router_module, 'supabase', fake_db)
     monkeypatch.setattr(diagnostic_router_module, 'supabase_client', fake_db)
     monkeypatch.setattr(diagnostic_session_store, 'supabase', fake_db)
+    monkeypatch.setattr(graph_service, 'supabase', fake_db)
     monkeypatch.setattr(diagnostic_session_store, '_USE_MEMORY_ONLY', False)
     monkeypatch.setattr(diagnostic_session_store, '_MEMORY_SESSIONS', {})
 
     app = FastAPI()
     app.include_router(diagnostic_router_module.router)
+    app.include_router(submission_router_module.router)
     app.include_router(students_router_module.router)
     app.include_router(teacher_router_module.router)
     app.include_router(authoring_router_module.router)
@@ -268,7 +273,43 @@ def test_diagnostic_flow_endpoints_persist_items_and_estimates(client_and_db):
     ]
     mastery_by_skill = {row['skill_id']: row for row in mastery_rows}
     assert mastery_by_skill['M4-F-001']['status'] == 'mastered'
+    assert mastery_by_skill['M4-F-001']['active_repair_path'] == []
     assert mastery_by_skill['M4-N-014']['status'] == 'learning'
+
+
+def test_diagnostic_remediation_handoff_populates_repair_path_for_next_skill(client_and_db):
+    client, db = client_and_db
+
+    start = client.post('/diagnostic/start', json={'student_id': 's2'})
+    assert start.status_code == 200
+    start_body = start.json()
+
+    answer = client.post(
+        '/diagnostic/answer',
+        json={
+            'session_id': start_body['session_id'],
+            'skill_id': start_body['next_skill'],
+            'student_answer': '2/4',
+            'is_correct': False,
+        },
+    )
+    assert answer.status_code == 200
+    assert answer.json()['status'] == 'complete'
+
+    mastery_rows = [
+        row for row in db.tables['student_mastery']
+        if row['student_id'] == 's2'
+    ]
+    mastery_by_skill = {row['skill_id']: row for row in mastery_rows}
+    assert mastery_by_skill['M4-F-001']['status'] == 'needs_review'
+    assert mastery_by_skill['M4-F-001']['active_repair_path'] == ['M4-N-014']
+
+    next_skill = client.get('/next-skill', params={'student_id': 's2'})
+    assert next_skill.status_code == 200
+    body = next_skill.json()
+    assert body['policy'] == 'repair'
+    assert body['source_skill_id'] == 'M4-F-001'
+    assert body['skill']['skill_id'] == 'M4-N-014'
 
 
 def test_diagnostic_flow_completes_at_max_question_cap(client_and_db):
@@ -396,3 +437,4 @@ def test_authoring_endpoints(client_and_db):
     skill_rows = db.tables['skills']
     published = [row for row in skill_rows if row.get('skill_id') == 'M4-N-099'][0]
     assert published['approval_status'] == 'live'
+

@@ -52,13 +52,19 @@ SUPABASE_KEY=your-supabase-key
 - Teacher analytics: `/teacher/class/{class_id}/heatmap`, `/teacher/class/{class_id}/bottlenecks`, `/teacher/class/{class_id}/caps-coverage`
 - Authoring: `/authoring/skills`, `/authoring/templates`, `/authoring/publish`
 
-## 7. Diagnostic Anchor Bank
+## 7. Diagnostic Schema
 
-Create the Supabase table with:
+Run these SQL files in Supabase SQL editor, in order:
 
 ```sql
--- run sql/001_create_diagnostic_question_bank.sql in Supabase SQL editor
+-- 1. sql/001_create_diagnostic_question_bank.sql
+-- 2. sql/002_create_diagnostic_persistence_tables.sql
 ```
+
+This creates:
+- `diagnostic_question_bank`
+- `diagnostic_items`
+- `diagnostic_skill_estimates`
 
 Seed the Grade 4 anchor bank with:
 
